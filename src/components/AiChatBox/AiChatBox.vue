@@ -339,8 +339,8 @@ function toggleExpand() {
   }
 
   &__close-btn {
-    width: 24px;
-    height: 24px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #F3F4F6;
     display: flex;
@@ -353,8 +353,9 @@ function toggleExpand() {
   }
 
   &__close-icon {
-    font-size: 10px;
+    font-size: 16px;
     color: #6B7280;
+    font-weight: 700;
   }
 
   &__body {

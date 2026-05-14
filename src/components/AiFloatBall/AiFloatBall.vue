@@ -2,10 +2,10 @@
   <view
     class="ai-float-ball"
     :style="{ left: posX + 'px', top: posY + 'px' }"
-    @touchstart="onTouchStart"
-    @touchmove.stop.prevent="onTouchMove"
-    @touchend="onTouchEnd"
-    @click="handleClick"
+    @touchstart="onPointerDown"
+    @touchmove.stop.prevent="onPointerMove"
+    @touchend="onPointerUp"
+    @mousedown.prevent="onPointerDown"
   >
     <view class="ai-float-ball__inner" :class="{ 'ai-float-ball__inner--dragging': isDragging }">
       <text class="ai-float-ball__icon">🤖</text>
@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   initialLeft: { type: Number, default: 0 },
@@ -33,27 +33,42 @@ let startY = 0
 let startLeft = 0
 let startTop = 0
 let hasMoved = false
+let isPointerDown = false
 
 onMounted(() => {
   const sysInfo = uni.getSystemInfoSync()
   posX.value = props.initialLeft || sysInfo.windowWidth - 70
   posY.value = props.initialTop || sysInfo.windowHeight - 200
+
+  // #ifdef H5
+  document.addEventListener('mousemove', onMouseMove)
+  document.addEventListener('mouseup', onMouseUp)
+  // #endif
 })
 
-function onTouchStart(e) {
-  const touch = e.touches[0]
-  startX = touch.clientX
-  startY = touch.clientY
+onBeforeUnmount(() => {
+  // #ifdef H5
+  document.removeEventListener('mousemove', onMouseMove)
+  document.removeEventListener('mouseup', onMouseUp)
+  // #endif
+})
+
+function onPointerDown(e) {
+  isPointerDown = true
+  hasMoved = false
+  const point = e.touches ? e.touches[0] : e
+  startX = point.clientX
+  startY = point.clientY
   startLeft = posX.value
   startTop = posY.value
   isDragging.value = true
-  hasMoved = false
 }
 
-function onTouchMove(e) {
-  const touch = e.touches[0]
-  const dx = touch.clientX - startX
-  const dy = touch.clientY - startY
+function onPointerMove(e) {
+  if (!isPointerDown) return
+  const point = e.touches ? e.touches[0] : e
+  const dx = point.clientX - startX
+  const dy = point.clientY - startY
   if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
     hasMoved = true
   }
@@ -66,18 +81,26 @@ function onTouchMove(e) {
   posY.value = newTop
 }
 
-function onTouchEnd() {
+function onPointerUp() {
+  if (!isPointerDown) return
+  isPointerDown = false
   isDragging.value = false
-  const sysInfo = uni.getSystemInfoSync()
-  const centerX = sysInfo.windowWidth / 2
-  posX.value = posX.value < centerX ? 14 : sysInfo.windowWidth - 70
-}
-
-function handleClick() {
-  if (!hasMoved) {
+  if (hasMoved) {
+    const sysInfo = uni.getSystemInfoSync()
+    const centerX = sysInfo.windowWidth / 2
+    posX.value = posX.value < centerX ? 14 : sysInfo.windowWidth - 70
+  } else {
     showPulse.value = false
     emit('click')
   }
+}
+
+function onMouseMove(e) {
+  onPointerMove(e)
+}
+
+function onMouseUp(e) {
+  onPointerUp()
 }
 </script>
 
@@ -87,6 +110,13 @@ function handleClick() {
   z-index: 888;
   width: 56px;
   height: 56px;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   &__inner {
     width: 56px;
@@ -118,6 +148,7 @@ function handleClick() {
     border-radius: 50%;
     background: rgba(78, 205, 196, 0.3);
     animation: pulse 2s ease-out infinite;
+    pointer-events: none;
   }
 }
 
