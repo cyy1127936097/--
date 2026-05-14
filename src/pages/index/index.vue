@@ -18,7 +18,7 @@
       <view class="home-page__toolbar-content">
         <view class="home-page__city" @click="switchCity">
           <text class="home-page__city-icon">📍</text>
-          <text class="home-page__city-name">{{ currentCity }}</text>
+          <text class="home-page__city-name">{{ displayCity }}</text>
         </view>
         <view class="home-page__toolbar-btns">
           <view class="home-page__tool-btn" @click="locateMe">
@@ -61,6 +61,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { useAppStore } from '@/store/app'
 import { getPoiList } from '@/api/poi'
 import { getSystemInfo, getSafeAreaBottom } from '@/utils/safeArea'
+import { reverseGeocode, getCurrentLocation } from '@/utils/location'
 import PoiPopup from '@/components/PoiPopup/PoiPopup.vue'
 import AiChatBox from '@/components/AiChatBox/AiChatBox.vue'
 import AiFloatBall from '@/components/AiFloatBall/AiFloatBall.vue'
@@ -72,6 +73,12 @@ const safeBottom = getSafeAreaBottom()
 
 const currentCity = computed(() => appStore.currentCity)
 const location = computed(() => appStore.currentLocation)
+const locationReady = computed(() => appStore.locationReady)
+
+const displayCity = computed(() => {
+  if (!locationReady.value) return '定位中...'
+  return currentCity.value || '未知'
+})
 
 const poiList = ref([])
 const aiBoxExpanded = ref(false)
@@ -84,7 +91,7 @@ const lastCity = ref('')
 const floatBallTop = computed(() => sysInfo.windowHeight - 200)
 
 const markers = computed(() => {
-  return poiList.value.map((poi, index) => ({
+  return poiList.value.map((poi) => ({
     id: poi.id,
     latitude: poi.latitude,
     longitude: poi.longitude,
@@ -121,15 +128,15 @@ const polylines = computed(() => {
 
 onMounted(() => {
   loadPoiList()
-  getCurrentLocation()
+  fetchLocation()
   lastCity.value = appStore.currentCity
 })
 
 onShow(() => {
   aiBoxExpanded.value = appStore.aiBoxExpanded
-  if (lastCity.value !== appStore.currentCity) {
+  if (lastCity.value !== appStore.currentCity && appStore.locationReady) {
     lastCity.value = appStore.currentCity
-    moveMapToCity()
+    moveMapToLocation()
   }
 })
 
@@ -155,14 +162,17 @@ function onMarkerTap(e) {
 
 function onRegionChange() {}
 
-function moveMapToCity() {
+function moveMapToLocation() {
   const mapContext = uni.createMapContext('homeMap')
-  mapContext.moveToLocation({
-    latitude: appStore.currentLocation.latitude,
-    longitude: appStore.currentLocation.longitude,
-    success: () => {},
-    fail: () => {}
-  })
+  const loc = appStore.currentLocation
+  if (loc.latitude && loc.longitude) {
+    mapContext.moveToLocation({
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+      success: () => {},
+      fail: () => {}
+    })
+  }
 }
 
 function toggleAiBox() {
@@ -179,56 +189,50 @@ function goPoiDetail(poi) {
   uni.navigateTo({ url: `/pages/poi-detail/index?id=${poi.id}` })
 }
 
-function getCurrentLocation() {
-  uni.getLocation({
-    type: 'gcj02',
-    success: async (res) => {
-      appStore.setLocation({ latitude: res.latitude, longitude: res.longitude })
-      await getCityName(res.latitude, res.longitude)
-    },
-    fail: (err) => {
-      console.error('获取位置失败', err)
-    }
-  })
+function fetchLocation() {
+  getCurrentLocation()
+    .then((loc) => {
+      appStore.setLocation({ latitude: loc.latitude, longitude: loc.longitude })
+      moveMapToLocation()
+      return reverseGeocode(loc.latitude, loc.longitude)
+    })
+    .then((city) => {
+      if (city) {
+        appStore.setCity(city)
+      }
+      appStore.setLocationReady(true)
+    })
+    .catch(() => {
+      appStore.setLocationReady(true)
+      fallbackLocation()
+    })
 }
 
 function locateMe() {
-  uni.getLocation({
-    type: 'gcj02',
-    success: async (res) => {
-      appStore.setLocation({ latitude: res.latitude, longitude: res.longitude })
-      await getCityName(res.latitude, res.longitude)
-      uni.showToast({ title: '定位成功', icon: 'success' })
-    },
-    fail: () => {
-      uni.showToast({ title: '定位失败，请检查权限', icon: 'none' })
-    }
-  })
-}
-
-async function getCityName(latitude, longitude) {
-  try {
-    const res = await uni.request({
-      url: `https://restapi.amap.com/v3/geocode/regeo?location=${longitude},${latitude}&key=313cf99032e645454c787cb07736e312&extensions=all`,
-      method: 'GET'
+  uni.showLoading({ title: '定位中...' })
+  getCurrentLocation()
+    .then((loc) => {
+      appStore.setLocation({ latitude: loc.latitude, longitude: loc.longitude })
+      moveMapToLocation()
+      return reverseGeocode(loc.latitude, loc.longitude)
     })
-    if (res.data && res.data.status === '1') {
-      const city = res.data.regeocode.addressComponent.city || res.data.regeocode.addressComponent.province
+    .then((city) => {
       if (city) {
-        appStore.setCity(city.replace('市', ''))
+        appStore.setCity(city)
       }
-    }
-  } catch (e) {
-    console.error('获取城市名称失败', e)
-  }
+      appStore.setLocationReady(true)
+      uni.hideLoading()
+      uni.showToast({ title: '定位成功', icon: 'success' })
+    })
+    .catch(() => {
+      uni.hideLoading()
+      uni.showToast({ title: '定位失败，请检查权限', icon: 'none' })
+    })
 }
 
-function switchCity() {
-  uni.navigateTo({ url: '/pages/city/index' })
-}
-
-function showFilter() {
-  uni.showToast({ title: '筛选功能开发中', icon: 'none' })
+function fallbackLocation() {
+  appStore.setLocation({ latitude: 24.4798, longitude: 118.0894 })
+  appStore.setCity('厦门')
 }
 </script>
 

@@ -2,6 +2,7 @@
 const common_vendor = require("../../common/vendor.js");
 const store_app = require("../../store/app.js");
 const utils_safeArea = require("../../utils/safeArea.js");
+const utils_location = require("../../utils/location.js");
 const _sfc_main = {
   __name: "index",
   setup(__props) {
@@ -258,7 +259,7 @@ const _sfc_main = {
     }
     common_vendor.onMounted(() => {
       if (!currentCity.value) {
-        getCurrentLocation();
+        fetchLocation();
       }
     });
     function onSearchInput(e) {
@@ -270,49 +271,32 @@ const _sfc_main = {
     function goBack() {
       common_vendor.index.navigateBack();
     }
-    function getCurrentLocation() {
-      common_vendor.index.getLocation({
-        type: "gcj02",
-        success: async (res) => {
-          appStore.setLocation({ latitude: res.latitude, longitude: res.longitude });
-          await getCityName(res.latitude, res.longitude);
-        },
-        fail: () => {
+    function fetchLocation() {
+      utils_location.getCurrentLocation().then((loc) => {
+        appStore.setLocation({ latitude: loc.latitude, longitude: loc.longitude });
+        return utils_location.reverseGeocode(loc.latitude, loc.longitude);
+      }).then((city) => {
+        if (city) {
+          appStore.setCity(city);
         }
+      }).catch(() => {
       });
     }
     function refreshLocation() {
       common_vendor.index.showLoading({ title: "定位中..." });
-      common_vendor.index.getLocation({
-        type: "gcj02",
-        success: async (res) => {
-          common_vendor.index.hideLoading();
-          appStore.setLocation({ latitude: res.latitude, longitude: res.longitude });
-          await getCityName(res.latitude, res.longitude);
-          common_vendor.index.showToast({ title: "定位成功", icon: "success" });
-        },
-        fail: () => {
-          common_vendor.index.hideLoading();
-          common_vendor.index.showToast({ title: "定位失败", icon: "none" });
+      utils_location.getCurrentLocation().then((loc) => {
+        appStore.setLocation({ latitude: loc.latitude, longitude: loc.longitude });
+        return utils_location.reverseGeocode(loc.latitude, loc.longitude);
+      }).then((city) => {
+        if (city) {
+          appStore.setCity(city);
         }
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({ title: "定位成功", icon: "success" });
+      }).catch(() => {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({ title: "定位失败", icon: "none" });
       });
-    }
-    async function getCityName(latitude, longitude) {
-      try {
-        const res = await common_vendor.index.request({
-          url: `https://restapi.amap.com/v3/geocode/regeo?location=${longitude},${latitude}&key=313cf99032e645454c787cb07736e312&extensions=all`,
-          method: "GET"
-        });
-        if (res.data && res.data.status === "1") {
-          const city = res.data.regeocode.addressComponent.city || res.data.regeocode.addressComponent.province;
-          if (city) {
-            const cityName = city.replace("市", "");
-            appStore.setCity(cityName);
-          }
-        }
-      } catch (e) {
-        console.error("获取城市名称失败", e);
-      }
     }
     function selectCity(city) {
       appStore.setCity(city.name);

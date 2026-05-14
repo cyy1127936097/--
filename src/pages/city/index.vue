@@ -156,6 +156,7 @@ import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useAppStore } from '@/store/app'
 import { getSystemInfo } from '@/utils/safeArea'
+import { reverseGeocode, getCurrentLocation } from '@/utils/location'
 
 const appStore = useAppStore()
 const sysInfo = getSystemInfo()
@@ -318,7 +319,7 @@ function getFirstLetter(name) {
 
 onMounted(() => {
   if (!currentCity.value) {
-    getCurrentLocation()
+    fetchLocation()
   }
 })
 
@@ -334,50 +335,38 @@ function goBack() {
   uni.navigateBack()
 }
 
-function getCurrentLocation() {
-  uni.getLocation({
-    type: 'gcj02',
-    success: async (res) => {
-      appStore.setLocation({ latitude: res.latitude, longitude: res.longitude })
-      await getCityName(res.latitude, res.longitude)
-    },
-    fail: () => {}
-  })
+function fetchLocation() {
+  getCurrentLocation()
+    .then((loc) => {
+      appStore.setLocation({ latitude: loc.latitude, longitude: loc.longitude })
+      return reverseGeocode(loc.latitude, loc.longitude)
+    })
+    .then((city) => {
+      if (city) {
+        appStore.setCity(city)
+      }
+    })
+    .catch(() => {})
 }
 
 function refreshLocation() {
   uni.showLoading({ title: '定位中...' })
-  uni.getLocation({
-    type: 'gcj02',
-    success: async (res) => {
+  getCurrentLocation()
+    .then((loc) => {
+      appStore.setLocation({ latitude: loc.latitude, longitude: loc.longitude })
+      return reverseGeocode(loc.latitude, loc.longitude)
+    })
+    .then((city) => {
+      if (city) {
+        appStore.setCity(city)
+      }
       uni.hideLoading()
-      appStore.setLocation({ latitude: res.latitude, longitude: res.longitude })
-      await getCityName(res.latitude, res.longitude)
       uni.showToast({ title: '定位成功', icon: 'success' })
-    },
-    fail: () => {
+    })
+    .catch(() => {
       uni.hideLoading()
       uni.showToast({ title: '定位失败', icon: 'none' })
-    }
-  })
-}
-
-async function getCityName(latitude, longitude) {
-  try {
-    const res = await uni.request({
-      url: `https://restapi.amap.com/v3/geocode/regeo?location=${longitude},${latitude}&key=313cf99032e645454c787cb07736e312&extensions=all`,
-      method: 'GET'
     })
-    if (res.data && res.data.status === '1') {
-      const city = res.data.regeocode.addressComponent.city || res.data.regeocode.addressComponent.province
-      if (city) {
-        const cityName = city.replace('市', '')
-        appStore.setCity(cityName)
-      }
-    }
-  } catch (e) {
-    console.error('获取城市名称失败', e)
-  }
 }
 
 function selectCity(city) {

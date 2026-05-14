@@ -3,6 +3,7 @@ const common_vendor = require("../../common/vendor.js");
 const store_app = require("../../store/app.js");
 const api_poi = require("../../api/poi.js");
 const utils_safeArea = require("../../utils/safeArea.js");
+const utils_location = require("../../utils/location.js");
 if (!Math) {
   (PoiPopup + AiChatBox + AiFloatBall)();
 }
@@ -18,6 +19,11 @@ const _sfc_main = {
     utils_safeArea.getSafeAreaBottom();
     const currentCity = common_vendor.computed(() => appStore.currentCity);
     const location = common_vendor.computed(() => appStore.currentLocation);
+    const locationReady = common_vendor.computed(() => appStore.locationReady);
+    const displayCity = common_vendor.computed(() => {
+      if (!locationReady.value) return "定位中...";
+      return currentCity.value || "未知";
+    });
     const poiList = common_vendor.ref([]);
     const aiBoxExpanded = common_vendor.ref(false);
     const popupVisible = common_vendor.ref(false);
@@ -27,7 +33,7 @@ const _sfc_main = {
     const lastCity = common_vendor.ref("");
     const floatBallTop = common_vendor.computed(() => sysInfo.windowHeight - 200);
     const markers = common_vendor.computed(() => {
-      return poiList.value.map((poi, index) => ({
+      return poiList.value.map((poi) => ({
         id: poi.id,
         latitude: poi.latitude,
         longitude: poi.longitude,
@@ -62,14 +68,14 @@ const _sfc_main = {
     });
     common_vendor.onMounted(() => {
       loadPoiList();
-      getCurrentLocation();
+      fetchLocation();
       lastCity.value = appStore.currentCity;
     });
     common_vendor.onShow(() => {
       aiBoxExpanded.value = appStore.aiBoxExpanded;
-      if (lastCity.value !== appStore.currentCity) {
+      if (lastCity.value !== appStore.currentCity && appStore.locationReady) {
         lastCity.value = appStore.currentCity;
-        moveMapToCity();
+        moveMapToLocation();
       }
     });
     async function loadPoiList() {
@@ -92,16 +98,19 @@ const _sfc_main = {
     }
     function onRegionChange() {
     }
-    function moveMapToCity() {
+    function moveMapToLocation() {
       const mapContext = common_vendor.index.createMapContext("homeMap");
-      mapContext.moveToLocation({
-        latitude: appStore.currentLocation.latitude,
-        longitude: appStore.currentLocation.longitude,
-        success: () => {
-        },
-        fail: () => {
-        }
-      });
+      const loc = appStore.currentLocation;
+      if (loc.latitude && loc.longitude) {
+        mapContext.moveToLocation({
+          latitude: loc.latitude,
+          longitude: loc.longitude,
+          success: () => {
+          },
+          fail: () => {
+          }
+        });
+      }
     }
     function toggleAiBox() {
       aiBoxExpanded.value = !aiBoxExpanded.value;
@@ -114,52 +123,42 @@ const _sfc_main = {
       popupVisible.value = false;
       common_vendor.index.navigateTo({ url: `/pages/poi-detail/index?id=${poi.id}` });
     }
-    function getCurrentLocation() {
-      common_vendor.index.getLocation({
-        type: "gcj02",
-        success: async (res) => {
-          appStore.setLocation({ latitude: res.latitude, longitude: res.longitude });
-          await getCityName(res.latitude, res.longitude);
-        },
-        fail: (err) => {
-          console.error("获取位置失败", err);
+    function fetchLocation() {
+      utils_location.getCurrentLocation().then((loc) => {
+        appStore.setLocation({ latitude: loc.latitude, longitude: loc.longitude });
+        moveMapToLocation();
+        return utils_location.reverseGeocode(loc.latitude, loc.longitude);
+      }).then((city) => {
+        if (city) {
+          appStore.setCity(city);
         }
+        appStore.setLocationReady(true);
+      }).catch(() => {
+        appStore.setLocationReady(true);
+        fallbackLocation();
       });
     }
     function locateMe() {
-      common_vendor.index.getLocation({
-        type: "gcj02",
-        success: async (res) => {
-          appStore.setLocation({ latitude: res.latitude, longitude: res.longitude });
-          await getCityName(res.latitude, res.longitude);
-          common_vendor.index.showToast({ title: "定位成功", icon: "success" });
-        },
-        fail: () => {
-          common_vendor.index.showToast({ title: "定位失败，请检查权限", icon: "none" });
+      common_vendor.index.showLoading({ title: "定位中..." });
+      utils_location.getCurrentLocation().then((loc) => {
+        appStore.setLocation({ latitude: loc.latitude, longitude: loc.longitude });
+        moveMapToLocation();
+        return utils_location.reverseGeocode(loc.latitude, loc.longitude);
+      }).then((city) => {
+        if (city) {
+          appStore.setCity(city);
         }
+        appStore.setLocationReady(true);
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({ title: "定位成功", icon: "success" });
+      }).catch(() => {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({ title: "定位失败，请检查权限", icon: "none" });
       });
     }
-    async function getCityName(latitude, longitude) {
-      try {
-        const res = await common_vendor.index.request({
-          url: `https://restapi.amap.com/v3/geocode/regeo?location=${longitude},${latitude}&key=313cf99032e645454c787cb07736e312&extensions=all`,
-          method: "GET"
-        });
-        if (res.data && res.data.status === "1") {
-          const city = res.data.regeocode.addressComponent.city || res.data.regeocode.addressComponent.province;
-          if (city) {
-            appStore.setCity(city.replace("市", ""));
-          }
-        }
-      } catch (e) {
-        console.error("获取城市名称失败", e);
-      }
-    }
-    function switchCity() {
-      common_vendor.index.navigateTo({ url: "/pages/city/index" });
-    }
-    function showFilter() {
-      common_vendor.index.showToast({ title: "筛选功能开发中", icon: "none" });
+    function fallbackLocation() {
+      appStore.setLocation({ latitude: 24.4798, longitude: 118.0894 });
+      appStore.setCity("厦门");
     }
     return (_ctx, _cache) => {
       return common_vendor.e({
@@ -169,10 +168,10 @@ const _sfc_main = {
         d: polylines.value,
         e: common_vendor.o(onMarkerTap),
         f: common_vendor.o(onRegionChange),
-        g: common_vendor.t(currentCity.value),
-        h: common_vendor.o(switchCity),
+        g: common_vendor.t(displayCity.value),
+        h: common_vendor.o((...args) => _ctx.switchCity && _ctx.switchCity(...args)),
         i: common_vendor.o(locateMe),
-        j: common_vendor.o(showFilter),
+        j: common_vendor.o((...args) => _ctx.showFilter && _ctx.showFilter(...args)),
         k: common_vendor.unref(statusBarHeight) + "px",
         l: common_vendor.o(($event) => popupVisible.value = false),
         m: common_vendor.o(goPoiDetail),

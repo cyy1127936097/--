@@ -4,8 +4,9 @@ import { getSystemInfo } from '@/utils/safeArea'
 
 export const useAppStore = defineStore('app', () => {
   const systemInfo = ref(getSystemInfo())
-  const currentCity = ref('厦门市')
-  const currentLocation = ref({ latitude: 24.4798, longitude: 118.0894 })
+  const currentCity = ref('')
+  const currentLocation = ref({ latitude: 0, longitude: 0 })
+  const locationReady = ref(false)
   const aiBoxExpanded = ref(false)
   const activeTab = ref(0)
 
@@ -15,6 +16,10 @@ export const useAppStore = defineStore('app', () => {
 
   function setLocation(location) {
     currentLocation.value = location
+  }
+
+  function setLocationReady(ready) {
+    locationReady.value = ready
   }
 
   function toggleAiBox() {
@@ -33,10 +38,12 @@ export const useAppStore = defineStore('app', () => {
     systemInfo,
     currentCity,
     currentLocation,
+    locationReady,
     aiBoxExpanded,
     activeTab,
     setCity,
     setLocation,
+    setLocationReady,
     toggleAiBox,
     setActiveTab,
     refreshSystemInfo
