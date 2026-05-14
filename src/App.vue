@@ -27,6 +27,8 @@ function initApp() {
 </script>
 
 <style lang="scss">
+@import '@/static/css/uniicons.css';
+
 page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,

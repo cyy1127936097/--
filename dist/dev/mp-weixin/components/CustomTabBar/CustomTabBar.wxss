@@ -1,3 +1,30 @@
+.uniui-home:before {
+  content: "\e662";
+}
+.uniui-home-filled:before {
+  content: "\e663";
+}
+.uniui-star:before {
+  content: "\e688";
+}
+.uniui-star-filled:before {
+  content: "\e68f";
+}
+.uniui-map:before {
+  content: "\e667";
+}
+.uniui-map-filled:before {
+  content: "\e666";
+}
+.uniui-bars:before {
+  content: "\e627";
+}
+.uniui-person:before {
+  content: "\e699";
+}
+.uniui-person-filled:before {
+  content: "\e69d";
+}
 .custom-tab-bar.data-v-f1426587 {
   position: fixed;
   bottom: 0;

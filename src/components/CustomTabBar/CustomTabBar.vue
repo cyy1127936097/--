@@ -7,11 +7,11 @@
       :class="{ 'custom-tab-bar__item--active': selectedIndex === index }"
       @click="switchTab(index)"
     >
-      <uni-icons
-        :type="selectedIndex === index ? tab.selectedIcon : tab.icon"
-        :size="24"
-        :color="selectedIndex === index ? selectedColor : color"
-      />
+      <text
+        class="uni-icons"
+        :class="selectedIndex === index ? tab.selectedIcon : tab.icon"
+        :style="{ color: selectedIndex === index ? selectedColor : color, fontSize: '24px' }"
+      ></text>
       <text
         class="custom-tab-bar__label"
         :style="{ color: selectedIndex === index ? selectedColor : color }"
@@ -45,32 +45,32 @@ const tabs = [
   {
     pagePath: '/pages/index/index',
     text: '首页',
-    icon: 'home',
-    selectedIcon: 'home-filled'
+    icon: 'uniui-home',
+    selectedIcon: 'uniui-home-filled'
   },
   {
     pagePath: '/pages/discover/index',
     text: '发现',
-    icon: 'compass',
-    selectedIcon: 'compass-filled'
+    icon: 'uniui-star',
+    selectedIcon: 'uniui-star-filled'
   },
   {
     pagePath: '/pages/trip/index',
     text: '行程',
-    icon: 'map',
-    selectedIcon: 'map-filled'
+    icon: 'uniui-map',
+    selectedIcon: 'uniui-map-filled'
   },
   {
     pagePath: '/pages/rank/index',
     text: '排行',
-    icon: 'bars',
-    selectedIcon: 'bars'
+    icon: 'uniui-bars',
+    selectedIcon: 'uniui-bars'
   },
   {
     pagePath: '/pages/mine/index',
     text: '我的',
-    icon: 'person',
-    selectedIcon: 'person-filled'
+    icon: 'uniui-person',
+    selectedIcon: 'uniui-person-filled'
   }
 ]
 
@@ -84,6 +84,18 @@ onMounted(() => {
   selectedIndex.value = props.selected
 })
 </script>
+
+<style lang="scss">
+.uniui-home:before { content: "\e662"; }
+.uniui-home-filled:before { content: "\e663"; }
+.uniui-star:before { content: "\e688"; }
+.uniui-star-filled:before { content: "\e68f"; }
+.uniui-map:before { content: "\e667"; }
+.uniui-map-filled:before { content: "\e666"; }
+.uniui-bars:before { content: "\e627"; }
+.uniui-person:before { content: "\e699"; }
+.uniui-person-filled:before { content: "\e69d"; }
+</style>
 
 <style lang="scss" scoped>
 .custom-tab-bar {
