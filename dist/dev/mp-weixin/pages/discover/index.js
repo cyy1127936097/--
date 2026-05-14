@@ -34,7 +34,7 @@ const _sfc_main = {
         tags.value = res.tags;
         communityList.value = res.list;
       } catch (e) {
-        console.error("加载社区数据失败", e);
+        common_vendor.index.__f__("error", "at pages/discover/index.vue:98", "加载社区数据失败", e);
       } finally {
         loading.value = false;
       }
@@ -94,3 +94,4 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-20534a7c"]]);
 wx.createPage(MiniProgramPage);
+//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/discover/index.js.map

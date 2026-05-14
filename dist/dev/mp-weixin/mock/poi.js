@@ -141,3 +141,4 @@ function getHotPoiList(limit = 10) {
 exports.getHotPoiList = getHotPoiList;
 exports.getPoiById = getPoiById;
 exports.poiList = poiList;
+//# sourceMappingURL=../../.sourcemap/mp-weixin/mock/poi.js.map

@@ -234,6 +234,14 @@ function fallbackLocation() {
   appStore.setLocation({ latitude: 24.4798, longitude: 118.0894 })
   appStore.setCity('厦门')
 }
+
+function switchCity() {
+  uni.navigateTo({ url: '/pages/city/index' })
+}
+
+function showFilter() {
+  uni.showToast({ title: '筛选功能开发中', icon: 'none' })
+}
 </script>
 
 <style lang="scss" scoped>

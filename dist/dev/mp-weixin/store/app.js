@@ -42,3 +42,4 @@ const useAppStore = common_vendor.defineStore("app", () => {
   };
 });
 exports.useAppStore = useAppStore;
+//# sourceMappingURL=../../.sourcemap/mp-weixin/store/app.js.map

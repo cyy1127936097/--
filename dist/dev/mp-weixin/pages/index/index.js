@@ -83,7 +83,7 @@ const _sfc_main = {
         const res = await api_poi.getPoiList();
         poiList.value = res.list;
       } catch (e) {
-        console.error("加载景点列表失败", e);
+        common_vendor.index.__f__("error", "at pages/index/index.vue:148", "加载景点列表失败", e);
       }
     }
     function onMarkerTap(e) {
@@ -160,6 +160,12 @@ const _sfc_main = {
       appStore.setLocation({ latitude: 24.4798, longitude: 118.0894 });
       appStore.setCity("厦门");
     }
+    function switchCity() {
+      common_vendor.index.navigateTo({ url: "/pages/city/index" });
+    }
+    function showFilter() {
+      common_vendor.index.showToast({ title: "筛选功能开发中", icon: "none" });
+    }
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: location.value.latitude,
@@ -169,9 +175,9 @@ const _sfc_main = {
         e: common_vendor.o(onMarkerTap),
         f: common_vendor.o(onRegionChange),
         g: common_vendor.t(displayCity.value),
-        h: common_vendor.o((...args) => _ctx.switchCity && _ctx.switchCity(...args)),
+        h: common_vendor.o(switchCity),
         i: common_vendor.o(locateMe),
-        j: common_vendor.o((...args) => _ctx.showFilter && _ctx.showFilter(...args)),
+        j: common_vendor.o(showFilter),
         k: common_vendor.unref(statusBarHeight) + "px",
         l: common_vendor.o(($event) => popupVisible.value = false),
         m: common_vendor.o(goPoiDetail),
@@ -201,3 +207,4 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-83a5a03c"]]);
 wx.createPage(MiniProgramPage);
+//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/index/index.js.map

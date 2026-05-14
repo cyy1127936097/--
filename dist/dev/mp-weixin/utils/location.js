@@ -67,3 +67,4 @@ function getCurrentLocation() {
 }
 exports.getCurrentLocation = getCurrentLocation;
 exports.reverseGeocode = reverseGeocode;
+//# sourceMappingURL=../../.sourcemap/mp-weixin/utils/location.js.map

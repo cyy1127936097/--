@@ -49,7 +49,7 @@ const _sfc_main = {
           common_vendor.index.switchTab({ url: "/pages/index/index" });
         }, 1e3);
       } catch (e) {
-        console.error("登录失败", e);
+        common_vendor.index.__f__("error", "at pages/login/index.vue:126", "登录失败", e);
       }
     }
     async function loginByWechat() {
@@ -65,7 +65,7 @@ const _sfc_main = {
           common_vendor.index.switchTab({ url: "/pages/index/index" });
         }, 1e3);
       } catch (e) {
-        console.error("微信登录失败", e);
+        common_vendor.index.__f__("error", "at pages/login/index.vue:143", "微信登录失败", e);
       }
     }
     return (_ctx, _cache) => {
@@ -90,3 +90,4 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-45258083"]]);
 wx.createPage(MiniProgramPage);
+//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/login/index.js.map

@@ -27,3 +27,4 @@ exports.removeToken = removeToken;
 exports.removeUserInfo = removeUserInfo;
 exports.setToken = setToken;
 exports.setUserInfo = setUserInfo;
+//# sourceMappingURL=../../.sourcemap/mp-weixin/utils/auth.js.map

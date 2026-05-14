@@ -77,3 +77,4 @@ const _sfc_main = {
 };
 const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-1c9c5466"]]);
 wx.createComponent(Component);
+//# sourceMappingURL=../../../.sourcemap/mp-weixin/components/AiFloatBall/AiFloatBall.js.map

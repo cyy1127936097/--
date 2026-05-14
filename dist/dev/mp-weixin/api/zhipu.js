@@ -38,7 +38,7 @@ function streamChat(messages, onChunk, onComplete, onError) {
     success: () => {
     },
     fail: (err) => {
-      console.error("智谱AI请求失败:", err);
+      common_vendor.index.__f__("error", "at api/zhipu.js:41", "智谱AI请求失败:", err);
       if (onError) onError(err);
     }
   });
@@ -106,3 +106,4 @@ function uint8ArrToUtf8(uint8Arr) {
   return str;
 }
 exports.streamChat = streamChat;
+//# sourceMappingURL=../../.sourcemap/mp-weixin/api/zhipu.js.map
