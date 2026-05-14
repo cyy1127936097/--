@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI旅游推荐APP - 移动端原型</title>
+<!-- Tailwind CSS -->
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<!-- Iconify -->
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* 模拟手机壳 */
+        .phone-container {
+            width: 375px;
+            height: 812px;
+            background: #fff;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #333;
+        }
+
+        /* 状态栏模拟 */
+        .status-bar {
+            height: 44px;
+            width: 100%;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 500;
+            position: absolute;
+            top: 0;
+            z-index: 100;
+            color: #000;
+        }
+
+        /* 隐藏滚动条 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 地图背景模拟 */
+        .map-bg {
+            background-color: #e5f4e3;
+            background-image: 
+                linear-gradient(#d1e7cf 1px, transparent 1px),
+                linear-gradient(90deg, #d1e7cf 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: relative;
+        }
+
+        /* 页面切换动画 */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            background: white;
+            z-index: 10;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* 气泡动画 */
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .poi-popup {
+            animation: popIn 0.3s ease-out;
+        }
+
+        /* 薄荷绿主题色 */
+        .bg-mint { background-color: #4ECDC4; }
+        .text-mint { color: #4ECDC4; }
+        .border-mint { border-color: #4ECDC4; }
+
+        /* 暖橙色辅助色 */
+        .bg-orange-brand { background-color: #FF9F43; }
+        .text-orange-brand { color: #FF9F43; }
+
+        /* 悬浮对话框拖拽状态 */
+        .dragging {
+            opacity: 0.7;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Shadcn UI 自定义主题色 */
+        :root {
+            --primary: hsl(173, 58%, 39%);
+            --primary-light: hsl(173, 60%, 95%);
+            --primary-dark: hsl(173, 58%, 29%);
+            --muted: hsl(210, 40%, 96%);
+            --muted-foreground: hsl(215, 16%, 47%);
+            --border: hsl(214, 32%, 91%);
+            --destructive: hsl(0, 72%, 51%);
+            --card: hsl(0, 0%, 100%);
+            --radius: 8px;
+        }
+        .bg-shadcn-primary { background-color: var(--primary); }
+        .text-shadcn-primary { color: var(--primary); }
+        .border-shadcn-primary { border-color: var(--primary); }
+        .bg-shadcn-muted { background-color: var(--muted); }
+        .text-shadcn-muted-foreground { color: var(--muted-foreground); }
+        .border-shadcn { border-color: var(--border); }
+        .bg-shadcn-primary-light { background-color: var(--primary-light); }
+
+        /* 社区页面瀑布流卡片 */
+        .community-card {
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: transform 0.2s;
+        }
+        .community-card:hover {
+            transform: translateY(-1px);
+        }
+        /* 社区顶部标签滚动条 */
+        .tag-scroll::-webkit-scrollbar { display: none; }
+        .tag-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Toast 提示条 */
+        .toast-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(0,0,0,0.78);
+            color: white;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            animation: toastAnim 2s ease forwards;
+            pointer-events: none;
+            backdrop-filter: blur(6px);
+            white-space: nowrap;
+        }
+        @keyframes toastAnim {
+            0% { opacity: 0; transform: translateY(8px) scale(0.95); }
+            15% { opacity: 1; transform: translateY(0) scale(1); }
+            80% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-8px) scale(0.95); }
+        }
+    </style>
+</head>
+<body>
+<div class="phone-container">
+<!-- 状态栏 -->
+<div class="status-bar">
+<span>9:41</span>
+<div class="flex gap-1 items-center">
+<iconify-icon icon="mdi:signal" width="14"></iconify-icon>
+<iconify-icon icon="mdi:wifi" width="14"></iconify-icon>
+<iconify-icon icon="mdi:battery" width="14"></iconify-icon>
+</div>
+</div>
+<!-- 页面：首页（地图+AI对话框） -->
+<div class="page active map-bg" id="page-home">
+<!-- 顶部工具栏 -->
+<div class="absolute top-12 left-0 w-full px-4 flex justify-between items-center z-20">
+<div class="bg-white px-4 py-2 rounded-full shadow-md flex items-center gap-2">
+<iconify-icon class="text-mint" icon="mdi:map-marker"></iconify-icon>
+<span class="text-sm font-bold text-gray-800">厦门市</span>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center">
+<iconify-icon class="text-gray-600" icon="mdi:crosshairs-gps" width="20"></iconify-icon>
+</button>
+<button class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center">
+<iconify-icon class="text-gray-600" icon="mdi:filter-variant" width="20"></iconify-icon>
+</button>
+</div>
+</div>
+<!-- 地图路线模拟 (SVG) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-10">
+<path d="M100 250 Q 150 300, 200 280 T 300 350" fill="none" stroke="#4ECDC4" stroke-dasharray="8 4" stroke-width="4"></path>
+<path d="M300 350 Q 250 450, 150 480 T 80 550" fill="none" stroke="#FF9F43" stroke-dasharray="8 4" stroke-width="4"></path>
+</svg>
+<!-- POI标记点 -->
+<div class="absolute z-20" onclick="showPoiDetail('鼓浪屿')" style="top: 230px; left: 80px;">
+<div class="flex flex-col items-center">
+<div class="bg-white p-2 rounded-full shadow-lg border-2 border-mint">
+<iconify-icon class="text-mint" icon="mdi:mountain" width="24"></iconify-icon>
+</div>
+<span class="text-[10px] font-bold mt-1 bg-white px-1 rounded">鼓浪屿</span>
+</div>
+</div>
+<div class="absolute z-20" onclick="showPoiDetail('曾厝垵')" style="top: 330px; left: 280px;">
+<div class="flex flex-col items-center">
+<div class="bg-white p-2 rounded-full shadow-lg border-2 border-orange-brand">
+<iconify-icon class="text-orange-brand" icon="mdi:camera" width="24"></iconify-icon>
+</div>
+<span class="text-[10px] font-bold mt-1 bg-white px-1 rounded">曾厝垵</span>
+</div>
+</div>
+<div class="absolute z-20" onclick="showPoiDetail('沙坡尾')" style="top: 460px; left: 130px;">
+<div class="flex flex-col items-center">
+<div class="bg-white p-2 rounded-full shadow-lg border-2 border-mint">
+<iconify-icon class="text-mint" icon="mdi:silverware-fork-knife" width="24"></iconify-icon>
+</div>
+<span class="text-[10px] font-bold mt-1 bg-white px-1 rounded">沙坡尾</span>
+</div>
+</div>
+<!-- POI 气泡弹窗 (默认隐藏) -->
+<div class="poi-popup absolute z-30 bg-white rounded-xl shadow-2xl p-3 w-48 hidden" id="poi-popup" style="top: 150px; left: 50px;">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-sm" id="popup-title">鼓浪屿</h4>
+<button onclick="hidePoiPopup()"><iconify-icon icon="mdi:close" width="16"></iconify-icon></button>
+</div>
+<div class="flex items-center gap-1 mb-1">
+<iconify-icon class="text-orange-brand" icon="mdi:star" width="12"></iconify-icon>
+<span class="text-xs text-gray-600">4.8分 · 户外/风光</span>
+</div>
+<p class="text-[10px] text-gray-500 mb-2">国家5A级景区，万国建筑博览会。</p>
+<button class="w-full py-1.5 bg-mint text-white text-xs rounded-lg" onclick="switchPage('poi')">查看详情</button>
+</div>
+<!-- 悬浮AI对话框 -->
+<div class="absolute bottom-24 left-1/2 -translate-x-1/2 w-[340px] bg-white rounded-3xl shadow-2xl overflow-hidden z-40 transition-all duration-300" id="ai-chat-box">
+<!-- 头部/收起状态 -->
+<div class="p-4 flex items-center justify-between cursor-pointer" onclick="toggleAiBox()">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-mint rounded-full flex items-center justify-center">
+<iconify-icon class="text-white" icon="mdi:robot" width="24"></iconify-icon>
+</div>
+<div>
+<h3 class="font-bold text-sm">AI 旅游规划师</h3>
+<p class="text-[10px] text-gray-400">正在为你定制专属路线...</p>
+</div>
+</div>
+<iconify-icon class="text-gray-400" icon="mdi:chevron-up" id="ai-toggle-icon" width="20"></iconify-icon>
+</div>
+<!-- 展开后的对话预览内容 -->
+<div class="px-4 pb-4 space-y-3" id="ai-content">
+<div class="bg-gray-50 p-3 rounded-2xl rounded-tl-none border border-gray-100">
+<p class="text-xs text-gray-600">嗨！我是你的AI向导。想去哪里玩？</p>
+</div>
+<div class="flex justify-end">
+<div class="bg-mint text-white p-3 rounded-2xl rounded-tr-none text-xs">
+                            我想去厦门玩3天，喜欢拍照和美食
+                        </div>
+</div>
+<!-- 输入框预览 -->
+<div class="flex items-center gap-2 mt-4" onclick="event.stopPropagation(); switchPage('chat')">
+<div class="flex-1 bg-gray-100 h-10 rounded-full px-4 flex items-center text-gray-400 text-xs">
+                            告诉我你的旅行需求吧~
+                        </div>
+<button class="w-10 h-10 bg-mint rounded-full flex items-center justify-center text-white">
+<iconify-icon icon="mdi:send" width="18"></iconify-icon>
+</button>
+</div>
+</div>
+</div>
+<!-- 底部导航栏 -->
+<div class="absolute bottom-0 left-0 w-full h-20 bg-white border-t border-[hsl(214,32%,91%)] flex justify-around items-center z-50">
+<button class="flex flex-col items-center gap-1" style="color:hsl(173,58%,39%)">
+<iconify-icon icon="mdi:home" width="24"></iconify-icon>
+<span class="text-[10px] font-semibold">首页</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[hsl(215,16%,47%)]" onclick="switchPage('community')">
+<iconify-icon icon="mdi:compass" width="24"></iconify-icon>
+<span class="text-[10px]">社区</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[hsl(215,16%,47%)]" onclick="switchPage('profile')">
+<iconify-icon icon="mdi:account" width="24"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</button>
+</div>
+</div>
+<!-- 页面：AI对话详情页 -->
+<div class="page bg-gray-50" id="page-chat">
+<!-- 顶部 -->
+<div class="h-24 bg-white flex items-end justify-between px-4 pb-4 shadow-sm">
+<button onclick="switchPage('home')"><iconify-icon icon="mdi:chevron-left" width="28"></iconify-icon></button>
+<h2 class="font-bold text-lg">AI 旅游规划师</h2>
+<button onclick="showHistory()"><iconify-icon icon="mdi:history" width="24"></iconify-icon></button>
+</div>
+<!-- 对话区域 -->
+<div class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar" id="chat-messages">
+<div class="flex gap-2">
+<div class="w-8 h-8 bg-mint rounded-full flex-shrink-0 flex items-center justify-center">
+<iconify-icon class="text-white" icon="mdi:robot" width="18"></iconify-icon>
+</div>
+<div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[80%]">
+<p class="text-sm text-gray-700">你好！我是你的AI旅游助手。请问你想去哪里旅行？</p>
+</div>
+</div>
+<div class="flex justify-end">
+<div class="bg-gray-200 p-3 rounded-2xl rounded-tr-none max-w-[80%]">
+<p class="text-sm text-gray-700">我想去厦门玩3天，喜欢拍照和美食</p>
+</div>
+</div>
+<div class="flex gap-2">
+<div class="w-8 h-8 bg-mint rounded-full flex-shrink-0 flex items-center justify-center">
+<iconify-icon class="text-white" icon="mdi:robot" width="18"></iconify-icon>
+</div>
+<div class="bg-mint p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[80%] text-white">
+<p class="text-sm leading-relaxed" id="streaming-text">
+                            根据您的偏好，我为您规划了一条【文艺·美食】3日游路线👇<br/><br/>
+                            第一天：<span class="text-red-500 font-bold">鼓浪屿</span> → 中山路步行街 → 八市海鲜市场<br/>
+                            第二天：厦门大学 → 南普陀寺 → 沙坡尾<br/>
+                            第三天：曾厝垵 → 环岛路骑行 → 黄厝沙滩
+                        </p>
+</div>
+</div>
+</div>
+<!-- 底部输入框 -->
+<div class="p-4 bg-white border-t border-gray-100 pb-10">
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+<iconify-icon class="text-gray-500" icon="mdi:microphone" width="20"></iconify-icon>
+</button>
+<div class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm text-gray-400">
+                        告诉我你的旅行需求吧~
+                    </div>
+<button class="bg-mint text-white px-4 py-2 rounded-full text-sm font-bold shadow-md" onclick="simulateReply()">发送</button>
+</div>
+</div>
+</div>
+<!-- 页面：景点详情页 -->
+<div class="page bg-white overflow-y-auto no-scrollbar" id="page-poi">
+<!-- 顶部图片轮播模拟 -->
+<div class="relative h-72">
+<img alt="Gulangyu Island" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/a073f5c00dc74a72bf298fe411b03ce5.jpg"/>
+<div class="absolute top-12 left-0 w-full px-4 flex justify-between items-center">
+<button class="w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white" onclick="switchPage('home')">
+<iconify-icon icon="mdi:chevron-left" width="28"></iconify-icon>
+</button>
+<button class="w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white" id="fav-btn" onclick="toggleFav()">
+<iconify-icon icon="mdi:heart-outline" id="fav-icon" width="22"></iconify-icon>
+</button>
+</div>
+<!-- 指示器 -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+<div class="w-2 h-2 rounded-full bg-white"></div>
+<div class="w-2 h-2 rounded-full bg-white/50"></div>
+<div class="w-2 h-2 rounded-full bg-white/50"></div>
+</div>
+</div>
+<!-- 基础信息 -->
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<h1 class="text-2xl font-bold text-gray-800">鼓浪屿</h1>
+<div class="flex items-center gap-1 bg-orange-100 px-2 py-1 rounded-lg">
+<iconify-icon class="text-orange-brand" icon="mdi:fire" width="16"></iconify-icon>
+<span class="text-xs text-orange-brand font-bold">厦门景点TOP 1</span>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-4">
+<div class="flex items-center gap-1">
+<iconify-icon class="text-orange-brand" icon="mdi:star" width="16"></iconify-icon>
+<span class="font-bold text-gray-700">4.8</span>
+</div>
+<span class="text-gray-400 text-sm">|</span>
+<span class="text-gray-500 text-sm">128条评论</span>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-mint/10 rounded-lg flex items-center justify-center text-mint">
+<iconify-icon icon="mdi:clock-outline" width="18"></iconify-icon>
+</div>
+<div>
+<p class="text-[10px] text-gray-400">开放时间</p>
+<p class="text-xs font-bold">全天开放</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-mint/10 rounded-lg flex items-center justify-center text-mint">
+<iconify-icon icon="mdi:ticket-outline" width="18"></iconify-icon>
+</div>
+<div>
+<p class="text-[10px] text-gray-400">门票价格</p>
+<p class="text-xs font-bold">免费(船票35元)</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-mint/10 rounded-lg flex items-center justify-center text-mint">
+<iconify-icon icon="mdi:bus" width="18"></iconify-icon>
+</div>
+<div>
+<p class="text-[10px] text-gray-400">交通方式</p>
+<p class="text-xs font-bold">轮渡码头登船</p>
+</div>
+</div>
+</div>
+<!-- AI总结 -->
+<div class="bg-mint/5 border border-mint/20 rounded-2xl p-4 mb-8">
+<p class="text-mint font-bold text-sm mb-1 italic">🌿 AI总结：</p>
+<p class="text-gray-600 text-sm leading-relaxed">
+                        多数游客认为鼓浪屿建筑风格独特，适合拍照打卡。岛上无机动车，非常安静，但建议避开节假日高峰期，体验感更佳。
+                    </p>
+</div>
+<!-- 评论区 -->
+<div class="border-t border-gray-100 pt-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-bold">全部评论 (128)</h3>
+<div class="flex gap-2">
+<button class="text-xs bg-gray-100 px-3 py-1 rounded-full text-gray-500">最新</button>
+<button class="text-xs bg-mint/10 px-3 py-1 rounded-full text-mint font-bold">最热</button>
+</div>
+</div>
+<!-- 评论列表 -->
+<div class="space-y-6 pb-10">
+<div class="flex gap-3">
+<div class="w-10 h-10 rounded-full bg-blue-100 flex-shrink-0">
+<img alt="User" class="w-full h-full rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/e1d671450ee64f818b74463c0915e8e7.jpg"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-1">
+<span class="font-bold text-sm">爱旅行的小王</span>
+<span class="text-[10px] text-gray-400">2024-05-10</span>
+</div>
+<div class="flex gap-0.5 mb-2">
+<iconify-icon class="text-orange-brand" icon="mdi:star" width="12"></iconify-icon>
+<iconify-icon class="text-orange-brand" icon="mdi:star" width="12"></iconify-icon>
+<iconify-icon class="text-orange-brand" icon="mdi:star" width="12"></iconify-icon>
+<iconify-icon class="text-orange-brand" icon="mdi:star" width="12"></iconify-icon>
+<iconify-icon class="text-orange-brand" icon="mdi:star" width="12"></iconify-icon>
+</div>
+<p class="text-sm text-gray-600 mb-3">真的太美了！每一条巷子都很有味道，八卦楼一定要去，拍照绝绝子！</p>
+<div class="flex gap-2">
+<div class="w-20 h-20 rounded-lg bg-gray-100 overflow-hidden">
+<img alt="Photo" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/645d5c26d36141b281d43aee3854e007.jpg"/>
+</div>
+<div class="w-20 h-20 rounded-lg bg-gray-100 overflow-hidden">
+<img alt="Photo" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/645d5c26d36141b281d43aee3854e007.jpg"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 页面：社区（小红书风格旅游社区） -->
+<div class="page bg-[hsl(210,40%,96%)]" id="page-community">
+<!-- 顶部标题栏 -->
+<div class="pt-14 px-4 pb-2 flex justify-between items-center bg-white border-b border-[hsl(214,32%,91%)]">
+<h1 class="text-xl font-bold text-gray-800">发现精彩</h1>
+<div class="flex gap-3">
+<button onclick="showToast('搜索功能开发中')"><iconify-icon class="text-gray-600" icon="mdi:magnify" width="22"></iconify-icon></button>
+<button onclick="showToast('消息中心开发中')"><iconify-icon class="text-gray-600" icon="mdi:bell-outline" width="22"></iconify-icon></button>
+</div>
+</div>
+<!-- 标签滚动栏 -->
+<div class="tag-scroll bg-white overflow-x-auto whitespace-nowrap px-4 py-3 border-b border-[hsl(214,32%,91%)]">
+<button class="inline-block px-4 py-1.5 rounded-full text-xs font-semibold mr-2 tag-btn" data-tag="recommend" style="background:hsl(173,58%,39%);color:white">推荐</button>
+<button class="inline-block px-4 py-1.5 rounded-full text-xs text-[hsl(215,16%,47%)] bg-[hsl(210,40%,96%)] mr-2 tag-btn" data-tag="hot">热门路线</button>
+<button class="inline-block px-4 py-1.5 rounded-full text-xs text-[hsl(215,16%,47%)] bg-[hsl(210,40%,96%)] mr-2 tag-btn" data-tag="shop">探店</button>
+<button class="inline-block px-4 py-1.5 rounded-full text-xs text-[hsl(215,16%,47%)] bg-[hsl(210,40%,96%)] mr-2 tag-btn" data-tag="photo">拍照打卡</button>
+<button class="inline-block px-4 py-1.5 rounded-full text-xs text-[hsl(215,16%,47%)] bg-[hsl(210,40%,96%)] mr-2 tag-btn" data-tag="hiking">户外徒步</button>
+<button class="inline-block px-4 py-1.5 rounded-full text-xs text-[hsl(215,16%,47%)] bg-[hsl(210,40%,96%)] mr-2 tag-btn" data-tag="food">美食地图</button>
+<button class="inline-block px-4 py-1.5 rounded-full text-xs text-[hsl(215,16%,47%)] bg-[hsl(210,40%,96%)] tag-btn" data-tag="family">亲子游</button>
+</div>
+<!-- 瀑布流内容区 -->
+<div class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-24">
+<div class="grid grid-cols-2 gap-3">
+<!-- 卡片1 -->
+<div class="community-card cursor-pointer" onclick="showToast('查看详情')">
+<div class="h-40" style="background:linear-gradient(135deg,#FF6B6B,#FFA07A)"></div>
+<div class="p-3">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+<img alt="User avatar of 小鹿爱旅行" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/4cfd4297804342ce9f1ee9a0d5735460.jpg"/>
+</div>
+<span class="text-[11px] font-medium text-gray-700">小鹿爱旅行</span>
+</div>
+<h3 class="text-sm font-semibold text-gray-800 leading-tight mb-2 line-clamp-2">厦门鼓浪屿一日游攻略🏝️美哭了</h3>
+<div class="flex items-center gap-3 text-[11px] text-[hsl(215,16%,47%)]">
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:heart" width="12"></iconify-icon>1.2k</span>
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:comment-outline" width="12"></iconify-icon>88</span>
+</div>
+</div>
+</div>
+<!-- 卡片2 -->
+<div class="community-card cursor-pointer" onclick="showToast('查看详情')">
+<div class="h-40" style="background:linear-gradient(135deg,#4ECDC4,#44B09E)"></div>
+<div class="p-3">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+<img alt="User avatar of 摄影师老王" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/c98f760b17b943f98c1c4dd1bfbb46f4.jpg"/>
+</div>
+<span class="text-[11px] font-medium text-gray-700">摄影师老王</span>
+</div>
+<h3 class="text-sm font-semibold text-gray-800 leading-tight mb-2 line-clamp-2">厦门大学拍照机位合集📸</h3>
+<div class="flex items-center gap-3 text-[11px] text-[hsl(215,16%,47%)]">
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:heart" width="12"></iconify-icon>856</span>
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:comment-outline" width="12"></iconify-icon>42</span>
+</div>
+</div>
+</div>
+<!-- 卡片3 -->
+<div class="community-card cursor-pointer" onclick="showToast('查看详情')">
+<div class="h-40" style="background:linear-gradient(135deg,#667eea,#764ba2)"></div>
+<div class="p-3">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+<img alt="User avatar of 吃货日记" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/b026aa491280437bb0b4b853c1a64dcf.jpg"/>
+</div>
+<span class="text-[11px] font-medium text-gray-700">吃货日记</span>
+</div>
+<h3 class="text-sm font-semibold text-gray-800 leading-tight mb-2 line-clamp-2">八市海鲜市场必吃榜💯</h3>
+<div class="flex items-center gap-3 text-[11px] text-[hsl(215,16%,47%)]">
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:heart" width="12"></iconify-icon>2.1k</span>
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:comment-outline" width="12"></iconify-icon>156</span>
+</div>
+</div>
+</div>
+<!-- 卡片4 -->
+<div class="community-card cursor-pointer" onclick="showToast('查看详情')">
+<div class="h-40" style="background:linear-gradient(135deg,#f093fb,#f5576c)"></div>
+<div class="p-3">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+<img alt="User avatar of 户外探险家" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/3382a1c7f0b54eb2ad9238536f0e95ff.jpg"/>
+</div>
+<span class="text-[11px] font-medium text-gray-700">户外探险家</span>
+</div>
+<h3 class="text-sm font-semibold text-gray-800 leading-tight mb-2 line-clamp-2">环岛路骑行路线分享🚴</h3>
+<div class="flex items-center gap-3 text-[11px] text-[hsl(215,16%,47%)]">
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:heart" width="12"></iconify-icon>634</span>
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:comment-outline" width="12"></iconify-icon>28</span>
+</div>
+</div>
+</div>
+<!-- 卡片5 -->
+<div class="community-card cursor-pointer" onclick="showToast('查看详情')">
+<div class="h-40" style="background:linear-gradient(135deg,#43e97b,#38f9d7)"></div>
+<div class="p-3">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+<img alt="User avatar of 文艺小清新" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/508c9ac2c0db421dac7dbccf14eb8c11.jpg"/>
+</div>
+<span class="text-[11px] font-medium text-gray-700">文艺小清新</span>
+</div>
+<h3 class="text-sm font-semibold text-gray-800 leading-tight mb-2 line-clamp-2">沙坡尾文艺小店探店🎨</h3>
+<div class="flex items-center gap-3 text-[11px] text-[hsl(215,16%,47%)]">
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:heart" width="12"></iconify-icon>967</span>
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:comment-outline" width="12"></iconify-icon>53</span>
+</div>
+</div>
+</div>
+<!-- 卡片6 -->
+<div class="community-card cursor-pointer" onclick="showToast('查看详情')">
+<div class="h-40" style="background:linear-gradient(135deg,#fa709a,#fee140)"></div>
+<div class="p-3">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-6 h-6 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+<img alt="User avatar of 小太阳麻麻" class="w-full h-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/ae67d6dfaea64b3c8c4715f4d40513a7.jpg"/>
+</div>
+<span class="text-[11px] font-medium text-gray-700">小太阳麻麻</span>
+</div>
+<h3 class="text-sm font-semibold text-gray-800 leading-tight mb-2 line-clamp-2">厦门亲子游3日路线👶</h3>
+<div class="flex items-center gap-3 text-[11px] text-[hsl(215,16%,47%)]">
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:heart" width="12"></iconify-icon>1.5k</span>
+<span class="flex items-center gap-1"><iconify-icon icon="mdi:comment-outline" width="12"></iconify-icon>112</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 底部导航栏（社区选中） -->
+<div class="absolute bottom-0 left-0 w-full h-20 bg-white border-t border-[hsl(214,32%,91%)] flex justify-around items-center z-50">
+<button class="flex flex-col items-center gap-1 text-[hsl(215,16%,47%)]" onclick="switchPage('home')">
+<iconify-icon icon="mdi:home" width="24"></iconify-icon>
+<span class="text-[10px]">首页</span>
+</button>
+<button class="flex flex-col items-center gap-1" style="color:hsl(173,58%,39%)">
+<iconify-icon icon="mdi:compass" width="24"></iconify-icon>
+<span class="text-[10px] font-semibold">社区</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[hsl(215,16%,47%)]" onclick="switchPage('profile')">
+<iconify-icon icon="mdi:account" width="24"></iconify-icon>
+<span class="text-[10px]">我的</span>
+</button>
+</div>
+</div>
+<!-- 页面：个人中心 -->
+<div class="page bg-[hsl(210,40%,96%)]" id="page-profile">
+<!-- 顶部信息 -->
+<div class="bg-[hsl(173,58%,39%)] h-64 pt-16 px-6 relative">
+<div class="flex justify-end mb-4">
+<button class="text-white/80 hover:text-white transition-colors"><iconify-icon icon="mdi:cog-outline" width="24"></iconify-icon></button>
+</div>
+<div class="flex flex-col items-center relative">
+<!-- 编辑按钮：头像右上角 -->
+<button class="absolute right-0 top-0 w-8 h-8 bg-white/25 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-colors" onclick="showToast('编辑个人资料')">
+<iconify-icon icon="mdi:pencil" width="14"></iconify-icon>
+</button>
+<div class="w-24 h-24 rounded-full border-[3px] border-white/40 p-0.5 mb-3 shadow-lg">
+<img alt="User avatar" class="w-full h-full rounded-full object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-05-13/adbd01cacb2541a4ba9dfd6c1ac2a4c9.jpg"/>
+</div>
+<h2 class="text-xl font-semibold text-white mb-1">旅行者小张</h2>
+<div class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">
+<span class="text-[11px] text-white font-medium">已登录 · 探索等级 Lv.5</span>
+</div>
+</div>
+<!-- Shadcn 风格统计卡片 -->
+<div class="absolute -bottom-10 left-6 right-6 bg-white rounded-lg border border-[hsl(214,32%,91%)] h-[72px] flex justify-around items-center shadow-sm">
+<div class="flex-1 text-center">
+<p class="font-semibold text-base text-gray-800">12</p>
+<p class="text-xs text-[hsl(215,16%,47%)]">我的路线</p>
+</div>
+<div class="w-px h-7 bg-[hsl(214,32%,91%)]"></div>
+<div class="flex-1 text-center">
+<p class="font-semibold text-base text-gray-800">48</p>
+<p class="text-xs text-[hsl(215,16%,47%)]">收藏景点</p>
+</div>
+<div class="w-px h-7 bg-[hsl(214,32%,91%)]"></div>
+<div class="flex-1 text-center">
+<p class="font-semibold text-base text-gray-800">156</p>
+<p class="text-xs text-[hsl(215,16%,47%)]">偏好设置</p>
+</div>
+</div>
+</div>
+<!-- 装饰分隔过渡 -->
+<div class="mt-14 px-6 flex items-center gap-3">
+<div class="flex-1 h-px bg-[hsl(214,32%,91%)]"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-[hsl(173,58%,39%)]/30"></div>
+<div class="flex-1 h-px bg-[hsl(214,32%,91%)]"></div>
+</div>
+<!-- 功能列表 - 第一组 -->
+<div class="mt-5 px-6 space-y-1">
+<div class="bg-white rounded-lg border border-[hsl(214,32%,91%)] overflow-hidden shadow-sm divide-y divide-[hsl(214,32%,91%)]">
+<div class="flex items-center justify-between p-4 cursor-pointer hover:bg-[hsl(210,40%,96%)]/50 transition-colors" onclick="showToast('我的路线 - 功能开发中')">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center flex-shrink-0">
+<iconify-icon icon="mdi:map-legend" width="20"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-800">我的路线</p>
+<p class="text-xs text-[hsl(215,16%,47%)]">查看已创建的旅行路线</p>
+</div>
+</div>
+<iconify-icon class="text-[hsl(215,16%,47%)] flex-shrink-0" icon="mdi:chevron-right" width="18"></iconify-icon>
+</div>
+<div class="flex items-center justify-between p-4 cursor-pointer hover:bg-[hsl(210,40%,96%)]/50 transition-colors" onclick="showToast('我的收藏 - 功能开发中')">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-red-50 text-red-500 flex items-center justify-center flex-shrink-0">
+<iconify-icon icon="mdi:heart" width="20"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-800">我的收藏</p>
+<p class="text-xs text-[hsl(215,16%,47%)]">收藏的景点与路线</p>
+</div>
+</div>
+<iconify-icon class="text-[hsl(215,16%,47%)] flex-shrink-0" icon="mdi:chevron-right" width="18"></iconify-icon>
+</div>
+<div class="flex items-center justify-between p-4 cursor-pointer hover:bg-[hsl(210,40%,96%)]/50 transition-colors" onclick="showToast('偏好设置 - 功能开发中')">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center flex-shrink-0">
+<iconify-icon icon="mdi:tune-variant" width="20"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-800">偏好设置</p>
+<p class="text-xs text-[hsl(215,16%,47%)]">个性化旅行偏好</p>
+</div>
+</div>
+<iconify-icon class="text-[hsl(215,16%,47%)] flex-shrink-0" icon="mdi:chevron-right" width="18"></iconify-icon>
+</div>
+</div>
+</div>
+<!-- 功能列表 - 第二组 -->
+<div class="mt-5 px-6 space-y-1">
+<div class="bg-white rounded-lg border border-[hsl(214,32%,91%)] overflow-hidden shadow-sm divide-y divide-[hsl(214,32%,91%)]">
+<div class="flex items-center justify-between p-4 cursor-pointer hover:bg-[hsl(210,40%,96%)]/50 transition-colors" onclick="showToast('离线缓存 - 功能开发中')">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-[hsl(173,60%,95%)] text-[hsl(173,58%,39%)] flex items-center justify-center flex-shrink-0">
+<iconify-icon icon="mdi:download" width="20"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-800">离线缓存</p>
+<p class="text-xs text-[hsl(215,16%,47%)]">离线地图与数据缓存</p>
+</div>
+</div>
+<iconify-icon class="text-[hsl(215,16%,47%)] flex-shrink-0" icon="mdi:chevron-right" width="18"></iconify-icon>
+</div>
+<div class="flex items-center justify-between p-4 cursor-pointer hover:bg-[hsl(210,40%,96%)]/50 transition-colors" onclick="showToast('隐私设置 - 功能开发中')">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center flex-shrink-0">
+<iconify-icon icon="mdi:shield-lock" width="20"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-800">隐私设置</p>
+<p class="text-xs text-[hsl(215,16%,47%)]">管理账号与数据隐私</p>
+</div>
+</div>
+<iconify-icon class="text-[hsl(215,16%,47%)] flex-shrink-0" icon="mdi:chevron-right" width="18"></iconify-icon>
+</div>
+</div>
+</div>
+<!-- 功能列表 - 第三组 (意见反馈) -->
+<div class="mt-5 px-6 space-y-1">
+<div class="bg-white rounded-lg border border-[hsl(214,32%,91%)] overflow-hidden shadow-sm">
+<div class="flex items-center justify-between p-4 cursor-pointer hover:bg-[hsl(210,40%,96%)]/50 transition-colors" onclick="showToast('意见反馈 - 感谢您的反馈')">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-500 flex items-center justify-center flex-shrink-0">
+<iconify-icon icon="mdi:message-text-outline" width="20"></iconify-icon>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-800">意见反馈</p>
+<p class="text-xs text-[hsl(215,16%,47%)]">告诉我们您的想法</p>
+</div>
+</div>
+<iconify-icon class="text-[hsl(215,16%,47%)] flex-shrink-0" icon="mdi:chevron-right" width="18"></iconify-icon>
+</div>
+</div>
+</div>
+<!-- 底部操作 -->
+<div class="mt-6 px-6 pb-24 space-y-4">
+<div class="text-center">
+<span class="text-xs text-[hsl(215,16%,47%)]">版本信息 v1.0.0</span>
+</div>
+<button class="w-full py-3 text-center text-[hsl(0,72%,51%)] font-semibold text-sm bg-white rounded-lg border border-[hsl(0,72%,51%)] hover:bg-red-50/50 transition-colors" onclick="showToast('已退出登录')">退出登录</button>
+</div>
+<!-- 底部导航栏 (Me选中) -->
+<div class="absolute bottom-0 left-0 w-full h-20 bg-white border-t border-[hsl(214,32%,91%)] flex justify-around items-center z-50">
+<button class="flex flex-col items-center gap-1 text-[hsl(215,16%,47%)]" onclick="switchPage('home')">
+<iconify-icon icon="mdi:home" width="24"></iconify-icon>
+<span class="text-[10px]">首页</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[hsl(215,16%,47%)]" onclick="switchPage('community')">
+<iconify-icon icon="mdi:compass" width="24"></iconify-icon>
+<span class="text-[10px]">社区</span>
+</button>
+<button class="flex flex-col items-center gap-1" style="color:hsl(173,58%,39%)">
+<iconify-icon icon="mdi:account" width="24"></iconify-icon>
+<span class="text-[10px] font-semibold">我的</span>
+</button>
+</div>
+</div>
+<!-- 对话历史弹窗 (模拟) -->
+<div class="absolute inset-0 bg-black/50 z-[100] hidden flex items-end" id="history-modal">
+<div class="w-full bg-white rounded-t-3xl p-6 animate-slide-up">
+</div>
+</div>
+</div>
+</body>
+</html>
