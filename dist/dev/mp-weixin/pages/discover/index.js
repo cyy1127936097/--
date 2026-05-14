@@ -3,9 +3,10 @@ const common_vendor = require("../../common/vendor.js");
 const api_community = require("../../api/community.js");
 const utils_safeArea = require("../../utils/safeArea.js");
 if (!Math) {
-  CommunityCard();
+  (CommunityCard + CustomTabBar)();
 }
 const CommunityCard = () => "../../components/CommunityCard/CommunityCard.js";
+const CustomTabBar = () => "../../components/CustomTabBar/CustomTabBar.js";
 const _sfc_main = {
   __name: "index",
   setup(__props) {
@@ -34,7 +35,7 @@ const _sfc_main = {
         tags.value = res.tags;
         communityList.value = res.list;
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/discover/index.vue:98", "加载社区数据失败", e);
+        common_vendor.index.__f__("error", "at pages/discover/index.vue:101", "加载社区数据失败", e);
       } finally {
         loading.value = false;
       }
@@ -87,7 +88,10 @@ const _sfc_main = {
           };
         }),
         g: common_vendor.t(loadingText.value),
-        h: common_vendor.o(loadMore)
+        h: common_vendor.o(loadMore),
+        i: common_vendor.p({
+          selected: 1
+        })
       };
     };
   }

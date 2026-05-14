@@ -52,6 +52,8 @@
       :initial-top="floatBallTop"
       @click="toggleAiBox"
     />
+
+    <CustomTabBar :selected="0" />
   </view>
 </template>
 
@@ -65,6 +67,7 @@ import { reverseGeocode, getCurrentLocation } from '@/utils/location'
 import PoiPopup from '@/components/PoiPopup/PoiPopup.vue'
 import AiChatBox from '@/components/AiChatBox/AiChatBox.vue'
 import AiFloatBall from '@/components/AiFloatBall/AiFloatBall.vue'
+import CustomTabBar from '@/components/CustomTabBar/CustomTabBar.vue'
 
 const appStore = useAppStore()
 const sysInfo = getSystemInfo()

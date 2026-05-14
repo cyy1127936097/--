@@ -5,11 +5,12 @@ const api_poi = require("../../api/poi.js");
 const utils_safeArea = require("../../utils/safeArea.js");
 const utils_location = require("../../utils/location.js");
 if (!Math) {
-  (PoiPopup + AiChatBox + AiFloatBall)();
+  (PoiPopup + AiChatBox + AiFloatBall + CustomTabBar)();
 }
 const PoiPopup = () => "../../components/PoiPopup/PoiPopup.js";
 const AiChatBox = () => "../../components/AiChatBox/AiChatBox.js";
 const AiFloatBall = () => "../../components/AiFloatBall/AiFloatBall.js";
+const CustomTabBar = () => "../../components/CustomTabBar/CustomTabBar.js";
 const _sfc_main = {
   __name: "index",
   setup(__props) {
@@ -86,7 +87,7 @@ const _sfc_main = {
         const res = await api_poi.getPoiList();
         poiList.value = res.list;
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/index/index.vue:153", "加载景点列表失败", e);
+        common_vendor.index.__f__("error", "at pages/index/index.vue:156", "加载景点列表失败", e);
       }
     }
     function onMarkerTap(e) {
@@ -207,7 +208,11 @@ const _sfc_main = {
         v: common_vendor.p({
           ["initial-top"]: floatBallTop.value
         })
-      } : {});
+      } : {}, {
+        w: common_vendor.p({
+          selected: 0
+        })
+      });
     };
   }
 };

@@ -2,6 +2,10 @@
 const common_vendor = require("../../common/vendor.js");
 const api_poi = require("../../api/poi.js");
 const utils_safeArea = require("../../utils/safeArea.js");
+if (!Math) {
+  CustomTabBar();
+}
+const CustomTabBar = () => "../../components/CustomTabBar/CustomTabBar.js";
 const _sfc_main = {
   __name: "index",
   setup(__props) {
@@ -24,7 +28,7 @@ const _sfc_main = {
       try {
         rankList.value = await api_poi.getHotPoi(20);
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/rank/index.vue:81", "加载排行失败", e);
+        common_vendor.index.__f__("error", "at pages/rank/index.vue:84", "加载排行失败", e);
       }
     }
     function loadMore() {
@@ -62,7 +66,10 @@ const _sfc_main = {
             l: common_vendor.o(($event) => goPoiDetail(poi), poi.id)
           });
         }),
-        d: common_vendor.o(loadMore)
+        d: common_vendor.o(loadMore),
+        e: common_vendor.p({
+          selected: 3
+        })
       };
     };
   }

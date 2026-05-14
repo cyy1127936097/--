@@ -43,6 +43,8 @@
         </view>
       </view>
     </scroll-view>
+
+    <CustomTabBar :selected="2" />
   </view>
 </template>
 
@@ -50,6 +52,7 @@
 import { ref, onMounted } from 'vue'
 import { getTripList } from '@/api/user'
 import { getSystemInfo } from '@/utils/safeArea'
+import CustomTabBar from '@/components/CustomTabBar/CustomTabBar.vue'
 
 const sysInfo = getSystemInfo()
 const statusBarHeight = sysInfo.statusBarHeight

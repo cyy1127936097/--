@@ -2,6 +2,10 @@
 const common_vendor = require("../../common/vendor.js");
 const api_user = require("../../api/user.js");
 const utils_safeArea = require("../../utils/safeArea.js");
+if (!Math) {
+  CustomTabBar();
+}
+const CustomTabBar = () => "../../components/CustomTabBar/CustomTabBar.js";
 const _sfc_main = {
   __name: "index",
   setup(__props) {
@@ -15,7 +19,7 @@ const _sfc_main = {
       try {
         trips.value = await api_user.getTripList();
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/trip/index.vue:67", "加载行程失败", e);
+        common_vendor.index.__f__("error", "at pages/trip/index.vue:70", "加载行程失败", e);
       }
     }
     function createTrip() {
@@ -46,6 +50,10 @@ const _sfc_main = {
             g: trip.id,
             h: common_vendor.o(($event) => goTripDetail(), trip.id)
           };
+        })
+      }, {
+        f: common_vendor.p({
+          selected: 2
         })
       });
     };
