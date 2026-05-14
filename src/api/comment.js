@@ -1,13 +1,13 @@
-import { getCommentsByPoiId } from '@/mock/comment'
+import { get, post } from '@/utils/request'
 
 export function getCommentList(poiId, sortBy = 'hot') {
-  return Promise.resolve(getCommentsByPoiId(poiId, sortBy))
+  return get('/api/comment/list', { poiId, sortBy })
 }
 
 export function postComment(data) {
-  return Promise.resolve({ id: Date.now(), ...data, likeCount: 0, isLiked: false, createTime: new Date().toISOString() })
+  return post('/api/comment/add', data)
 }
 
 export function toggleCommentLike(commentId) {
-  return Promise.resolve({ commentId, isLiked: true })
+  return post(`/api/comment/like/${commentId}`)
 }

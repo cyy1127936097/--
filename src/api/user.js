@@ -1,17 +1,17 @@
-import { mockUser, tripList } from '@/mock/user'
+import { get, post } from '@/utils/request'
 
 export function getUserInfo() {
-  return Promise.resolve(mockUser)
+  return get('/api/user/info')
 }
 
 export function getTripList() {
-  return Promise.resolve(tripList)
+  return get('/api/trip/list')
 }
 
 export function loginByPhone(data) {
-  return Promise.resolve({ token: 'mock_token_' + Date.now(), userInfo: { ...mockUser, phone: data.phone } })
+  return post('/api/user/login/phone', data)
 }
 
 export function loginByWechat() {
-  return Promise.resolve({ token: 'mock_token_wx_' + Date.now(), userInfo: mockUser })
+  return post('/api/user/login/wechat')
 }

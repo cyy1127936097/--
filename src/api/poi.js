@@ -1,25 +1,21 @@
 import { get, post } from '@/utils/request'
-import { poiList, getPoiById, getHotPoiList, routeList } from '@/mock/poi'
 
 export function getPoiList(params) {
-  return Promise.resolve({ list: poiList, total: poiList.length })
+  return get('/api/poi/list', params)
 }
 
 export function getPoiDetail(id) {
-  const poi = getPoiById(id)
-  return Promise.resolve(poi || null)
+  return get(`/api/poi/detail/${id}`)
 }
 
 export function getHotPoi(limit = 10) {
-  return Promise.resolve(getHotPoiList(limit))
+  return get('/api/poi/hot', { limit })
 }
 
 export function getRouteList() {
-  return Promise.resolve(routeList)
+  return get('/api/poi/route')
 }
 
 export function toggleFavorite(id) {
-  const poi = getPoiById(id)
-  if (poi) poi.isFavorite = !poi.isFavorite
-  return Promise.resolve(poi)
+  return post(`/api/poi/favorite/${id}`)
 }
