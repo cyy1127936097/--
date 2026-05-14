@@ -58,7 +58,7 @@ const useChatStore = common_vendor.defineStore("chat", () => {
         assistantMsg.content = "抱歉，AI暂时无法回复，请稍后再试 🙏";
         assistantMsg.isStreaming = false;
         isStreaming.value = false;
-        common_vendor.index.__f__("error", "at store/chat.js:71", "对话异常:", error);
+        console.error("对话异常:", error);
       }
     );
   }
@@ -85,4 +85,3 @@ const useChatStore = common_vendor.defineStore("chat", () => {
   };
 });
 exports.useChatStore = useChatStore;
-//# sourceMappingURL=../../.sourcemap/mp-weixin/store/chat.js.map

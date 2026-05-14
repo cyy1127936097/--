@@ -311,7 +311,7 @@ const _sfc_main = {
           }
         }
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/city/index.vue:379", "获取城市名称失败", e);
+        console.error("获取城市名称失败", e);
       }
     }
     function selectCity(city) {
@@ -423,4 +423,3 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-0bee7659"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/city/index.js.map

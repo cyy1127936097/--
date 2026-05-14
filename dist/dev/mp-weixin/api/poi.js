@@ -14,4 +14,3 @@ function getHotPoi(limit = 10) {
 exports.getHotPoi = getHotPoi;
 exports.getPoiDetail = getPoiDetail;
 exports.getPoiList = getPoiList;
-//# sourceMappingURL=../../.sourcemap/mp-weixin/api/poi.js.map

@@ -5,6 +5,10 @@
       "style": {
         "navigationStyle": "custom",
         "navigationBarTitleText": "",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false
         }
@@ -15,6 +19,10 @@
       "style": {
         "navigationStyle": "custom",
         "navigationBarTitleText": "",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false
         }
@@ -25,6 +33,10 @@
       "style": {
         "navigationStyle": "custom",
         "navigationBarTitleText": "",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false
         }
@@ -35,6 +47,10 @@
       "style": {
         "navigationStyle": "custom",
         "navigationBarTitleText": "",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false
         }
@@ -45,6 +61,10 @@
       "style": {
         "navigationStyle": "custom",
         "navigationBarTitleText": "",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false
         }
@@ -54,7 +74,11 @@
       "path": "pages/chat/index",
       "style": {
         "navigationStyle": "custom",
-        "navigationBarTitleText": "",
+        "navigationBarTitleText": "AI 旅游规划师",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false,
           "softinputMode": "adjustResize"
@@ -65,7 +89,11 @@
       "path": "pages/poi-detail/index",
       "style": {
         "navigationStyle": "custom",
-        "navigationBarTitleText": "",
+        "navigationBarTitleText": "景点详情",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false
         }
@@ -75,7 +103,11 @@
       "path": "pages/comment/index",
       "style": {
         "navigationStyle": "custom",
-        "navigationBarTitleText": "",
+        "navigationBarTitleText": "评论",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false
         }
@@ -85,7 +117,11 @@
       "path": "pages/login/index",
       "style": {
         "navigationStyle": "custom",
-        "navigationBarTitleText": "",
+        "navigationBarTitleText": "登录",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false
         }
@@ -95,7 +131,11 @@
       "path": "pages/city/index",
       "style": {
         "navigationStyle": "custom",
-        "navigationBarTitleText": "",
+        "navigationBarTitleText": "切换城市",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
         "app-plus": {
           "titleNView": false
         }
@@ -107,6 +147,10 @@
     "navigationBarTitleText": "智旅AI",
     "navigationBarBackgroundColor": "#FFFFFF",
     "backgroundColor": "#F3F4F6",
+    "mp-weixin": {
+      "navigationStyle": "custom",
+      "usingComponents": {}
+    },
     "app-plus": {
       "titleNView": false
     }

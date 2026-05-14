@@ -1,6 +1,6 @@
 {
   "navigationStyle": "custom",
-  "navigationBarTitleText": "",
+  "navigationBarTitleText": "评论",
   "usingComponents": {
     "comment-item": "../../components/CommentItem/CommentItem"
   }

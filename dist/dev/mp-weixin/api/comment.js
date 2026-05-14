@@ -8,4 +8,3 @@ function postComment(data) {
 }
 exports.getCommentList = getCommentList;
 exports.postComment = postComment;
-//# sourceMappingURL=../../.sourcemap/mp-weixin/api/comment.js.map

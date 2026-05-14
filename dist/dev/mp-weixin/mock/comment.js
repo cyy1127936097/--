@@ -90,4 +90,3 @@ function getCommentsByPoiId(poiId, sortBy = "hot") {
   return list.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
 }
 exports.getCommentsByPoiId = getCommentsByPoiId;
-//# sourceMappingURL=../../.sourcemap/mp-weixin/mock/comment.js.map

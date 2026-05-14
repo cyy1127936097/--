@@ -119,6 +119,22 @@ let hasMoved = false
 let isPointerDown = false
 const boxWidth = 340
 const tabBarHeight = 50
+let sysInfoCache = null
+
+function getSysInfo() {
+  if (!sysInfoCache) {
+    sysInfoCache = uni.getSystemInfoSync()
+  }
+  return sysInfoCache
+}
+
+function getViewportHeight() {
+  if (typeof window !== 'undefined' && window.innerHeight) {
+    return window.innerHeight
+  }
+  const sys = getSysInfo()
+  return sys.screenHeight
+}
 
 const boxStyle = computed(() => ({
   left: posX.value + 'px',
@@ -126,17 +142,21 @@ const boxStyle = computed(() => ({
 }))
 
 onMounted(() => {
-  const sysInfo = uni.getSystemInfoSync()
+  const sysInfo = getSysInfo()
   posX.value = (sysInfo.windowWidth - boxWidth) / 2
-  const viewportHeight = window.innerHeight || sysInfo.screenHeight
-  posY.value = viewportHeight - tabBarHeight - 8 - 250
+  posY.value = getViewportHeight() - tabBarHeight - 8 - 250
+
+  // #ifdef H5
   document.addEventListener('mousemove', onPointerMove)
   document.addEventListener('mouseup', onPointerUp)
+  // #endif
 })
 
 onBeforeUnmount(() => {
+  // #ifdef H5
   document.removeEventListener('mousemove', onPointerMove)
   document.removeEventListener('mouseup', onPointerUp)
+  // #endif
 })
 
 watch(() => chatStore.messages.length, () => {
@@ -184,8 +204,8 @@ function onPointerMove(e) {
   if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
     hasMoved = true
   }
-  const sysInfo = uni.getSystemInfoSync()
-  const viewportHeight = window.innerHeight || sysInfo.screenHeight
+  const sysInfo = getSysInfo()
+  const viewportHeight = getViewportHeight()
   let newLeft = startLeft + dx
   let newTop = startTop + dy
   newLeft = Math.max(0, Math.min(newLeft, sysInfo.windowWidth - boxWidth))
@@ -200,7 +220,7 @@ function onPointerUp() {
   isDragging.value = false
   if (!hasMoved) return
   isAnimating.value = true
-  const sysInfo = uni.getSystemInfoSync()
+  const sysInfo = getSysInfo()
   const centerX = sysInfo.windowWidth / 2
   if (posX.value + boxWidth / 2 < centerX) {
     posX.value = 12

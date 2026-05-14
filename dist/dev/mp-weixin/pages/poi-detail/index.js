@@ -49,7 +49,7 @@ const _sfc_main = {
           isFavorite.value = data.isFavorite;
         }
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/poi-detail/index.vue:183", "加载景点详情失败", e);
+        console.error("加载景点详情失败", e);
       }
     }
     async function loadComments() {
@@ -57,7 +57,7 @@ const _sfc_main = {
         const list = await api_comment.getCommentList(poiId.value, commentSort.value);
         comments.value = list.slice(0, 3);
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/poi-detail/index.vue:192", "加载评论失败", e);
+        console.error("加载评论失败", e);
       }
     }
     function goBack() {
@@ -147,4 +147,3 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-4916c438"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/poi-detail/index.js.map

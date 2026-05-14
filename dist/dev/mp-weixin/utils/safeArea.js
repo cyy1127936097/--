@@ -23,4 +23,3 @@ function getSafeAreaBottom() {
 }
 exports.getSafeAreaBottom = getSafeAreaBottom;
 exports.getSystemInfo = getSystemInfo;
-//# sourceMappingURL=../../.sourcemap/mp-weixin/utils/safeArea.js.map

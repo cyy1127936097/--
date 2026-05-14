@@ -77,7 +77,7 @@ const _sfc_main = {
         const res = await api_poi.getPoiList();
         poiList.value = res.list;
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/index/index.vue:141", "加载景点列表失败", e);
+        console.error("加载景点列表失败", e);
       }
     }
     function onMarkerTap(e) {
@@ -122,7 +122,7 @@ const _sfc_main = {
           await getCityName(res.latitude, res.longitude);
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/index/index.vue:190", "获取位置失败", err);
+          console.error("获取位置失败", err);
         }
       });
     }
@@ -152,7 +152,7 @@ const _sfc_main = {
           }
         }
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/index/index.vue:222", "获取城市名称失败", e);
+        console.error("获取城市名称失败", e);
       }
     }
     function switchCity() {
@@ -202,4 +202,3 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-83a5a03c"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/index/index.js.map

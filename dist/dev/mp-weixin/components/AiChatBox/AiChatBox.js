@@ -18,27 +18,30 @@ const _sfc_main = {
     const isAnimating = common_vendor.ref(false);
     const inputText = common_vendor.ref("");
     const msgScrollTop = common_vendor.ref(0);
-    let startX = 0;
-    let startY = 0;
-    let startLeft = 0;
-    let startTop = 0;
-    let hasMoved = false;
-    let isPointerDown = false;
+    let sysInfoCache = null;
+    function getSysInfo() {
+      if (!sysInfoCache) {
+        sysInfoCache = common_vendor.index.getSystemInfoSync();
+      }
+      return sysInfoCache;
+    }
+    function getViewportHeight() {
+      if (typeof window !== "undefined" && window.innerHeight) {
+        return window.innerHeight;
+      }
+      const sys = getSysInfo();
+      return sys.screenHeight;
+    }
     const boxStyle = common_vendor.computed(() => ({
       left: posX.value + "px",
       top: posY.value + "px"
     }));
     common_vendor.onMounted(() => {
-      const sysInfo = common_vendor.index.getSystemInfoSync();
+      const sysInfo = getSysInfo();
       posX.value = (sysInfo.windowWidth - boxWidth) / 2;
-      const viewportHeight = window.innerHeight || sysInfo.screenHeight;
-      posY.value = viewportHeight - tabBarHeight - 8 - 250;
-      document.addEventListener("mousemove", onPointerMove);
-      document.addEventListener("mouseup", onPointerUp);
+      posY.value = getViewportHeight() - tabBarHeight - 8 - 250;
     });
     common_vendor.onBeforeUnmount(() => {
-      document.removeEventListener("mousemove", onPointerMove);
-      document.removeEventListener("mouseup", onPointerUp);
     });
     common_vendor.watch(() => chatStore.messages.length, () => {
       scrollMsgToBottom();
@@ -63,49 +66,13 @@ const _sfc_main = {
       scrollMsgToBottom();
     }
     function onPointerDown(e) {
-      isPointerDown = true;
-      hasMoved = false;
       const point = e.touches ? e.touches[0] : e;
-      startX = point.clientX;
-      startY = point.clientY;
-      startLeft = posX.value;
-      startTop = posY.value;
+      point.clientX;
+      point.clientY;
+      posX.value;
+      posY.value;
       isDragging.value = true;
       isAnimating.value = false;
-    }
-    function onPointerMove(e) {
-      if (!isPointerDown) return;
-      const point = e.touches ? e.touches[0] : e;
-      const dx = point.clientX - startX;
-      const dy = point.clientY - startY;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-        hasMoved = true;
-      }
-      const sysInfo = common_vendor.index.getSystemInfoSync();
-      const viewportHeight = window.innerHeight || sysInfo.screenHeight;
-      let newLeft = startLeft + dx;
-      let newTop = startTop + dy;
-      newLeft = Math.max(0, Math.min(newLeft, sysInfo.windowWidth - boxWidth));
-      newTop = Math.max(40, Math.min(newTop, viewportHeight - tabBarHeight - 60));
-      posX.value = newLeft;
-      posY.value = newTop;
-    }
-    function onPointerUp() {
-      if (!isPointerDown) return;
-      isPointerDown = false;
-      isDragging.value = false;
-      if (!hasMoved) return;
-      isAnimating.value = true;
-      const sysInfo = common_vendor.index.getSystemInfoSync();
-      const centerX = sysInfo.windowWidth / 2;
-      if (posX.value + boxWidth / 2 < centerX) {
-        posX.value = 12;
-      } else {
-        posX.value = sysInfo.windowWidth - boxWidth - 12;
-      }
-      setTimeout(() => {
-        isAnimating.value = false;
-      }, 300);
     }
     function toggleExpand() {
       emit("toggle");
@@ -149,4 +116,3 @@ const _sfc_main = {
 };
 const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-d32c522b"]]);
 wx.createComponent(Component);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/components/AiChatBox/AiChatBox.js.map
