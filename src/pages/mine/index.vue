@@ -167,6 +167,10 @@ function goPage(page) {
     uni.navigateTo({ url: '/pages/login/index' })
     return
   }
+  if (page === 'preference') {
+    uni.navigateTo({ url: '/pages/preference/index' })
+    return
+  }
   uni.showToast({ title: '功能开发中', icon: 'none' })
 }
 

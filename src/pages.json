@@ -140,6 +140,20 @@
           "titleNView": false
         }
       }
+    },
+    {
+      "path": "pages/preference/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "偏好设置",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
+        "app-plus": {
+          "titleNView": false
+        }
+      }
     }
   ],
   "globalStyle": {

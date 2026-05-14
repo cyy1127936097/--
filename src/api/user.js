@@ -1,5 +1,8 @@
 import { mockUser, tripList } from '@/mock/user'
 
+const TEST_PHONE = '123'
+const TEST_CODE = '123'
+
 export function getUserInfo() {
   return Promise.resolve(mockUser)
 }
@@ -9,7 +12,10 @@ export function getTripList() {
 }
 
 export function loginByPhone(data) {
-  return Promise.resolve({ token: 'mock_token_' + Date.now(), userInfo: { ...mockUser, phone: data.phone } })
+  if (data.phone === TEST_PHONE && data.code === TEST_CODE) {
+    return Promise.resolve({ token: 'mock_token_' + Date.now(), userInfo: { ...mockUser, phone: data.phone } })
+  }
+  return Promise.reject(new Error('手机号或验证码错误'))
 }
 
 export function loginByWechat() {

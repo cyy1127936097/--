@@ -2,7 +2,7 @@ const ZHIPU_API_KEY = '39bfaec720ac45458755bcc2be4dbab0.FgMjAva0IsSX1cMi'
 const ZHIPU_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions'
 const MODEL = 'glm-4-flash'
 
-const SYSTEM_PROMPT = `你是"智旅AI"，一个专业的旅游规划助手。你的职责是：
+const BASE_SYSTEM_PROMPT = `你是"智旅AI"，一个专业的旅游规划助手。你的职责是：
 1. 根据用户的需求，推荐旅游目的地、景点、美食
 2. 帮助用户规划旅行路线和行程安排
 3. 提供旅游攻略、交通建议、住宿推荐
@@ -14,14 +14,18 @@ const SYSTEM_PROMPT = `你是"智旅AI"，一个专业的旅游规划助手。�
 - 行程规划按天排列，清晰明了
 - 语气友好热情，像朋友一样交流`
 
-function buildMessages(messages) {
+function buildMessages(messages, preferenceContext) {
+  let systemContent = BASE_SYSTEM_PROMPT
+  if (preferenceContext) {
+    systemContent += `\n\n用户偏好信息：\n${preferenceContext}\n请在推荐时优先考虑以上偏好，让推荐更贴合用户需求。`
+  }
   return [
-    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'system', content: systemContent },
     ...messages
   ]
 }
 
-export function streamChat(messages, onChunk, onComplete, onError) {
+export function streamChat(messages, onChunk, onComplete, onError, preferenceContext) {
   const requestTask = uni.request({
     url: ZHIPU_API_URL,
     method: 'POST',
@@ -31,7 +35,7 @@ export function streamChat(messages, onChunk, onComplete, onError) {
     },
     data: {
       model: MODEL,
-      messages: buildMessages(messages),
+      messages: buildMessages(messages, preferenceContext),
       stream: true
     },
     enableChunked: true,
@@ -114,7 +118,7 @@ function uint8ArrToUtf8(uint8Arr) {
   return str
 }
 
-export function sendChatMessage(messages) {
+export function sendChatMessage(messages, preferenceContext) {
   return new Promise((resolve, reject) => {
     uni.request({
       url: ZHIPU_API_URL,
@@ -125,7 +129,7 @@ export function sendChatMessage(messages) {
       },
       data: {
         model: MODEL,
-        messages: buildMessages(messages),
+        messages: buildMessages(messages, preferenceContext),
         stream: false
       },
       success: (res) => {

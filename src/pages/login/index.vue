@@ -14,7 +14,6 @@
           class="login-page__input"
           v-model="phone"
           type="number"
-          maxlength="11"
           placeholder="请输入手机号"
           placeholder-class="login-page__placeholder"
         />
@@ -25,7 +24,6 @@
           class="login-page__input"
           v-model="code"
           type="number"
-          maxlength="6"
           placeholder="请输入验证码"
           placeholder-class="login-page__placeholder"
         />
@@ -88,8 +86,8 @@ const codeCooldown = ref(0)
 
 async function sendCode() {
   if (codeCooldown.value > 0) return
-  if (!phone.value || phone.value.length !== 11) {
-    uni.showToast({ title: '请输入正确的手机号', icon: 'none' })
+  if (!phone.value) {
+    uni.showToast({ title: '请输入手机号', icon: 'none' })
     return
   }
   uni.showToast({ title: '验证码已发送', icon: 'success' })
@@ -107,23 +105,23 @@ async function loginByPhone() {
     uni.showToast({ title: '请先同意用户协议', icon: 'none' })
     return
   }
-  if (!phone.value || phone.value.length !== 11) {
-    uni.showToast({ title: '请输入正确的手机号', icon: 'none' })
+  if (!phone.value) {
+    uni.showToast({ title: '请输入手机号', icon: 'none' })
     return
   }
-  if (!code.value || code.value.length < 4) {
+  if (!code.value) {
     uni.showToast({ title: '请输入验证码', icon: 'none' })
     return
   }
   try {
-    const res = await apiLoginByPhone({ phone: phone.value })
+    const res = await apiLoginByPhone({ phone: phone.value, code: code.value })
     userStore.login(res.userInfo)
     uni.showToast({ title: '登录成功', icon: 'success' })
     setTimeout(() => {
       uni.switchTab({ url: '/pages/index/index' })
     }, 1000)
   } catch (e) {
-    console.error('登录失败', e)
+    uni.showToast({ title: e.message || '登录失败', icon: 'none' })
   }
 }
 
