@@ -28,7 +28,7 @@ const _sfc_main = {
       try {
         rankList.value = await api_poi.getHotPoi(20);
       } catch (e) {
-        console.error("加载排行失败", e);
+        common_vendor.index.__f__("error", "at pages/rank/index.vue:84", "加载排行失败", e);
       }
     }
     function loadMore() {
@@ -76,3 +76,4 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-aa654e54"]]);
 wx.createPage(MiniProgramPage);
+//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/rank/index.js.map

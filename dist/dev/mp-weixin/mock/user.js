@@ -42,3 +42,4 @@ const tripList = [
 ];
 exports.mockUser = mockUser;
 exports.tripList = tripList;
+//# sourceMappingURL=../../.sourcemap/mp-weixin/mock/user.js.map

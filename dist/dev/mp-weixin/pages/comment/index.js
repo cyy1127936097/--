@@ -30,7 +30,7 @@ const _sfc_main = {
       try {
         commentList.value = await api_comment.getCommentList(poiId.value, sortBy.value);
       } catch (e) {
-        console.error("加载评论失败", e);
+        common_vendor.index.__f__("error", "at pages/comment/index.vue:91", "加载评论失败", e);
       } finally {
         loading.value = false;
       }
@@ -60,7 +60,7 @@ const _sfc_main = {
         common_vendor.index.showToast({ title: "评论成功", icon: "success" });
         loadComments();
       } catch (e) {
-        console.error("评论失败", e);
+        common_vendor.index.__f__("error", "at pages/comment/index.vue:125", "评论失败", e);
       }
     }
     function goBack() {
@@ -99,3 +99,4 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-975542cb"]]);
 wx.createPage(MiniProgramPage);
+//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/comment/index.js.map

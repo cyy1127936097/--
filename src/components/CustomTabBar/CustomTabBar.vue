@@ -20,6 +20,15 @@
   </view>
 </template>
 
+<script>
+export default {
+  options: {
+    addGlobalClass: true,
+    styleIsolation: 'apply-shared'
+  }
+}
+</script>
+
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
@@ -86,6 +95,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@import '@/static/css/uniicons.css';
+
 .uniui-home:before { content: "\e662"; }
 .uniui-home-filled:before { content: "\e663"; }
 .uniui-star:before { content: "\e688"; }

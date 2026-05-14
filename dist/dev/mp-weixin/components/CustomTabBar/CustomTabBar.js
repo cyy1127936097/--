@@ -1,14 +1,20 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
-const color = "#6B7A8D";
-const selectedColor = "#4ECDC4";
-const _sfc_main = {
+const __default__ = {
+  options: {
+    addGlobalClass: true,
+    styleIsolation: "apply-shared"
+  }
+};
+const _sfc_main = /* @__PURE__ */ Object.assign(__default__, {
   __name: "CustomTabBar",
   props: {
     selected: { type: Number, default: 0 }
   },
   setup(__props) {
     const props = __props;
+    const color = "#6B7A8D";
+    const selectedColor = "#4ECDC4";
     const safeBottom = common_vendor.computed(() => {
       try {
         const info = common_vendor.index.getSystemInfoSync();
@@ -75,6 +81,7 @@ const _sfc_main = {
       };
     };
   }
-};
+});
 const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-f1426587"]]);
 wx.createComponent(Component);
+//# sourceMappingURL=../../../.sourcemap/mp-weixin/components/CustomTabBar/CustomTabBar.js.map

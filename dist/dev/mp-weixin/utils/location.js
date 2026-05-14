@@ -56,9 +56,9 @@ function reverseGeocodeQQ(latitude, longitude) {
 }
 function reverseGeocode(latitude, longitude) {
   return reverseGeocodeAmap(latitude, longitude).catch((err1) => {
-    console.warn("高德逆地理编码失败:", err1.message);
+    common_vendor.index.__f__("warn", "at utils/location.js:65", "高德逆地理编码失败:", err1.message);
     return reverseGeocodeQQ(latitude, longitude).catch((err2) => {
-      console.warn("腾讯逆地理编码失败:", err2.message);
+      common_vendor.index.__f__("warn", "at utils/location.js:67", "腾讯逆地理编码失败:", err2.message);
       return "";
     });
   });
@@ -76,3 +76,4 @@ function getCurrentLocation() {
 }
 exports.getCurrentLocation = getCurrentLocation;
 exports.reverseGeocode = reverseGeocode;
+//# sourceMappingURL=../../.sourcemap/mp-weixin/utils/location.js.map

@@ -68,3 +68,4 @@ function getCommunityList(tag = "") {
 }
 exports.getCommunityList = getCommunityList;
 exports.tagList = tagList;
+//# sourceMappingURL=../../.sourcemap/mp-weixin/mock/community.js.map

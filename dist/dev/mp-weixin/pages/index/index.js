@@ -87,7 +87,7 @@ const _sfc_main = {
         const res = await api_poi.getPoiList();
         poiList.value = res.list;
       } catch (e) {
-        console.error("加载景点列表失败", e);
+        common_vendor.index.__f__("error", "at pages/index/index.vue:156", "加载景点列表失败", e);
       }
     }
     function onMarkerTap(e) {
@@ -218,3 +218,4 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-83a5a03c"]]);
 wx.createPage(MiniProgramPage);
+//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/index/index.js.map
