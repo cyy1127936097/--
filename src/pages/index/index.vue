@@ -61,6 +61,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { useAppStore } from '@/store/app'
 import { getPoiList } from '@/api/poi'
 import { getSystemInfo, getSafeAreaBottom } from '@/utils/safeArea'
+import { getLocation, getCityName } from '@/utils/location'
 import PoiPopup from '@/components/PoiPopup/PoiPopup.vue'
 import AiChatBox from '@/components/AiChatBox/AiChatBox.vue'
 import AiFloatBall from '@/components/AiFloatBall/AiFloatBall.vue'
@@ -153,7 +154,25 @@ function onMarkerTap(e) {
   }
 }
 
-function onRegionChange() {}
+let regionChangeTimer = null
+
+function onRegionChange(e) {
+  if (e.type === 'end' || e.causedBy === 'gesture' || e.detail?.type === 'end') {
+    if (regionChangeTimer) clearTimeout(regionChangeTimer)
+    regionChangeTimer = setTimeout(() => {
+      const mapContext = uni.createMapContext('homeMap')
+      mapContext.getCenterLocation({
+        success: async (res) => {
+          const city = await getCityName(res.latitude, res.longitude)
+          if (city) {
+            appStore.setCity(city)
+            appStore.setLocation({ latitude: res.latitude, longitude: res.longitude })
+          }
+        }
+      })
+    }, 300)
+  }
+}
 
 function moveMapToCity() {
   const mapContext = uni.createMapContext('homeMap')
@@ -179,47 +198,44 @@ function goPoiDetail(poi) {
   uni.navigateTo({ url: `/pages/poi-detail/index?id=${poi.id}` })
 }
 
-function getCurrentLocation() {
-  uni.getLocation({
-    type: 'gcj02',
-    success: async (res) => {
-      appStore.setLocation({ latitude: res.latitude, longitude: res.longitude })
-      await getCityName(res.latitude, res.longitude)
-    },
-    fail: (err) => {
-      console.error('获取位置失败', err)
-    }
-  })
-}
-
-function locateMe() {
-  uni.getLocation({
-    type: 'gcj02',
-    success: async (res) => {
-      appStore.setLocation({ latitude: res.latitude, longitude: res.longitude })
-      await getCityName(res.latitude, res.longitude)
-      uni.showToast({ title: '定位成功', icon: 'success' })
-    },
-    fail: () => {
-      uni.showToast({ title: '定位失败，请检查权限', icon: 'none' })
-    }
-  })
-}
-
-async function getCityName(latitude, longitude) {
+async function getCurrentLocation() {
   try {
-    const res = await uni.request({
-      url: `https://restapi.amap.com/v3/geocode/regeo?location=${longitude},${latitude}&key=313cf99032e645454c787cb07736e312&extensions=all`,
-      method: 'GET'
-    })
-    if (res.data && res.data.status === '1') {
-      const city = res.data.regeocode.addressComponent.city || res.data.regeocode.addressComponent.province
-      if (city) {
-        appStore.setCity(city.replace('市', ''))
-      }
+    const pos = await getLocation()
+    appStore.setLocation({ latitude: pos.latitude, longitude: pos.longitude })
+    const city = await getCityName(pos.latitude, pos.longitude, pos.coordType)
+    if (city) {
+      appStore.setCity(city)
+      moveMapToLocation(pos.latitude, pos.longitude)
     }
   } catch (e) {
-    console.error('获取城市名称失败', e)
+    console.error('获取位置失败，使用默认位置', e)
+    const city = await getCityName(appStore.currentLocation.latitude, appStore.currentLocation.longitude)
+    if (city) appStore.setCity(city)
+  }
+}
+
+function moveMapToLocation(latitude, longitude) {
+  const mapContext = uni.createMapContext('homeMap')
+  mapContext.moveToLocation({
+    latitude,
+    longitude,
+    success: () => {},
+    fail: () => {}
+  })
+}
+
+async function locateMe() {
+  try {
+    const pos = await getLocation()
+    appStore.setLocation({ latitude: pos.latitude, longitude: pos.longitude })
+    const city = await getCityName(pos.latitude, pos.longitude, pos.coordType)
+    if (city) {
+      appStore.setCity(city)
+      moveMapToLocation(pos.latitude, pos.longitude)
+    }
+    uni.showToast({ title: '定位成功', icon: 'success' })
+  } catch (e) {
+    uni.showToast({ title: e.message || '定位失败，请检查权限', icon: 'none' })
   }
 }
 

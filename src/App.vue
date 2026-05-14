@@ -46,4 +46,29 @@ view, text, image {
   width: 0;
   height: 0;
 }
+
+/* H5端适配 */
+/* #ifdef H5 */
+uni-page-body {
+  height: 100% !important;
+}
+
+page {
+  height: 100vh;
+  height: 100dvh;
+}
+
+@media (min-width: 750px) {
+  uni-app {
+    display: flex;
+    justify-content: center;
+    background: #E5E7EB;
+  }
+  uni-page-body {
+    max-width: 750px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+}
+/* #endif */
 </style>

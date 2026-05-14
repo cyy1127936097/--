@@ -46,10 +46,18 @@
     </view>
 
     <view class="login-page__social">
+      <!-- #ifndef H5 -->
       <view class="login-page__wechat" @click="loginByWechat">
         <text class="login-page__wechat-icon">💬</text>
         <text class="login-page__wechat-text">微信登录</text>
       </view>
+      <!-- #endif -->
+      <!-- #ifdef H5 -->
+      <view class="login-page__wechat" @click="loginByWechat">
+        <text class="login-page__wechat-icon">🌐</text>
+        <text class="login-page__wechat-text">快捷登录</text>
+      </view>
+      <!-- #endif -->
     </view>
 
     <view class="login-page__agreement">

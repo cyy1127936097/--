@@ -156,6 +156,7 @@ import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useAppStore } from '@/store/app'
 import { getSystemInfo } from '@/utils/safeArea'
+import { getLocation, getCityName } from '@/utils/location'
 
 const appStore = useAppStore()
 const sysInfo = getSystemInfo()
@@ -334,49 +335,29 @@ function goBack() {
   uni.navigateBack()
 }
 
-function getCurrentLocation() {
-  uni.getLocation({
-    type: 'gcj02',
-    success: async (res) => {
-      appStore.setLocation({ latitude: res.latitude, longitude: res.longitude })
-      await getCityName(res.latitude, res.longitude)
-    },
-    fail: () => {}
-  })
-}
-
-function refreshLocation() {
-  uni.showLoading({ title: '定位中...' })
-  uni.getLocation({
-    type: 'gcj02',
-    success: async (res) => {
-      uni.hideLoading()
-      appStore.setLocation({ latitude: res.latitude, longitude: res.longitude })
-      await getCityName(res.latitude, res.longitude)
-      uni.showToast({ title: '定位成功', icon: 'success' })
-    },
-    fail: () => {
-      uni.hideLoading()
-      uni.showToast({ title: '定位失败', icon: 'none' })
-    }
-  })
-}
-
-async function getCityName(latitude, longitude) {
+async function getCurrentLocation() {
   try {
-    const res = await uni.request({
-      url: `https://restapi.amap.com/v3/geocode/regeo?location=${longitude},${latitude}&key=313cf99032e645454c787cb07736e312&extensions=all`,
-      method: 'GET'
-    })
-    if (res.data && res.data.status === '1') {
-      const city = res.data.regeocode.addressComponent.city || res.data.regeocode.addressComponent.province
-      if (city) {
-        const cityName = city.replace('市', '')
-        appStore.setCity(cityName)
-      }
-    }
+    const pos = await getLocation()
+    appStore.setLocation({ latitude: pos.latitude, longitude: pos.longitude })
+    const city = await getCityName(pos.latitude, pos.longitude, pos.coordType)
+    if (city) appStore.setCity(city)
   } catch (e) {
-    console.error('获取城市名称失败', e)
+    console.error('定位失败', e)
+  }
+}
+
+async function refreshLocation() {
+  uni.showLoading({ title: '定位中...' })
+  try {
+    const pos = await getLocation()
+    uni.hideLoading()
+    appStore.setLocation({ latitude: pos.latitude, longitude: pos.longitude })
+    const city = await getCityName(pos.latitude, pos.longitude, pos.coordType)
+    if (city) appStore.setCity(city)
+    uni.showToast({ title: '定位成功', icon: 'success' })
+  } catch (e) {
+    uni.hideLoading()
+    uni.showToast({ title: e.message || '定位失败', icon: 'none' })
   }
 }
 

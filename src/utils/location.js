@@ -1,6 +1,6 @@
-function getLocationH5() {
+function getLocationByBrowser() {
   return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
       reject(new Error('浏览器不支持定位'))
       return
     }
@@ -8,7 +8,8 @@ function getLocationH5() {
       (pos) => {
         resolve({
           latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude
+          longitude: pos.coords.longitude,
+          coordType: 'wgs84'
         })
       },
       (err) => {
@@ -28,14 +29,15 @@ function getLocationH5() {
   })
 }
 
-function getLocationNative() {
+function getLocationByUni() {
   return new Promise((resolve, reject) => {
     uni.getLocation({
       type: 'gcj02',
       success: (res) => {
         resolve({
           latitude: res.latitude,
-          longitude: res.longitude
+          longitude: res.longitude,
+          coordType: 'gcj02'
         })
       },
       fail: (err) => {
@@ -46,15 +48,70 @@ function getLocationNative() {
 }
 
 export function getLocation() {
-  // #ifdef H5
-  return getLocationH5()
-  // #endif
-  // #ifndef H5
-  return getLocationNative()
-  // #endif
+  if (typeof navigator !== 'undefined' && navigator.geolocation) {
+    return getLocationByBrowser().catch(() => getLocationByUni())
+  }
+  return getLocationByUni()
 }
 
-export async function getCityName(latitude, longitude) {
+function wgs84ToGcj02(lng, lat) {
+  const PI = Math.PI
+  const a = 6378245.0
+  const ee = 0.00669342162296594323
+  let dLat = transformLat(lng - 105.0, lat - 35.0)
+  let dLng = transformLng(lng - 105.0, lat - 35.0)
+  const radLat = lat / 180.0 * PI
+  let magic = Math.sin(radLat)
+  magic = 1 - ee * magic * magic
+  const sqrtMagic = Math.sqrt(magic)
+  dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * PI)
+  dLng = (dLng * 180.0) / (a / sqrtMagic * Math.cos(radLat) * PI)
+  return {
+    latitude: lat + dLat,
+    longitude: lng + dLng
+  }
+}
+
+function transformLat(lng, lat) {
+  let ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng))
+  ret += (20.0 * Math.sin(6.0 * lng * Math.PI) + 20.0 * Math.sin(2.0 * lng * Math.PI)) * 2.0 / 3.0
+  ret += (20.0 * Math.sin(lat * Math.PI) + 40.0 * Math.sin(lat / 3.0 * Math.PI)) * 2.0 / 3.0
+  ret += (160.0 * Math.sin(lat / 12.0 * Math.PI) + 320.0 * Math.sin(lat * Math.PI / 30.0)) * 2.0 / 3.0
+  return ret
+}
+
+function transformLng(lng, lat) {
+  let ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng))
+  ret += (20.0 * Math.sin(6.0 * lng * Math.PI) + 20.0 * Math.sin(2.0 * lng * Math.PI)) * 2.0 / 3.0
+  ret += (20.0 * Math.sin(lng * Math.PI) + 40.0 * Math.sin(lng / 3.0 * Math.PI)) * 2.0 / 3.0
+  ret += (150.0 * Math.sin(lng / 12.0 * Math.PI) + 300.0 * Math.sin(lng / 30.0 * Math.PI)) * 2.0 / 3.0
+  return ret
+}
+
+function getCityNameByAMapJS(latitude, longitude) {
+  return new Promise((resolve) => {
+    if (typeof AMap === 'undefined') {
+      resolve(null)
+      return
+    }
+    AMap.plugin('AMap.Geocoder', () => {
+      const geocoder = new AMap.Geocoder({ radius: 1000, extensions: 'base' })
+      geocoder.getAddress([longitude, latitude], (status, result) => {
+        if (status === 'complete' && result.info === 'OK') {
+          const addr = result.regeocode.addressComponent
+          const city = addr.city || addr.province
+          if (city) {
+            resolve(city.replace('市', ''))
+            return
+          }
+        }
+        resolve(null)
+      })
+    })
+  })
+}
+
+async function getCityNameByRestApi(latitude, longitude) {
   try {
     const res = await new Promise((resolve, reject) => {
       uni.request({
@@ -72,7 +129,24 @@ export async function getCityName(latitude, longitude) {
     }
     return null
   } catch (e) {
-    console.error('获取城市名称失败', e)
+    console.error('REST API获取城市名称失败', e)
     return null
   }
+}
+
+export async function getCityName(latitude, longitude, coordType = 'gcj02') {
+  let gcjLat = latitude
+  let gcjLng = longitude
+  if (coordType === 'wgs84') {
+    const converted = wgs84ToGcj02(longitude, latitude)
+    gcjLat = converted.latitude
+    gcjLng = converted.longitude
+  }
+
+  // #ifdef H5
+  const city = await getCityNameByAMapJS(gcjLat, gcjLng)
+  if (city) return city
+  // #endif
+
+  return await getCityNameByRestApi(gcjLat, gcjLng)
 }

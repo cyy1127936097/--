@@ -25,7 +25,89 @@ function buildMessages(messages, preferenceContext) {
   ]
 }
 
-export function streamChat(messages, onChunk, onComplete, onError, preferenceContext) {
+function isH5() {
+  // #ifdef H5
+  return true
+  // #endif
+  // #ifndef H5
+  return false
+  // #endif
+}
+
+function streamChatH5(messages, onChunk, onComplete, onError, preferenceContext) {
+  let aborted = false
+  const controller = new AbortController()
+
+  fetch(ZHIPU_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${ZHIPU_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: buildMessages(messages, preferenceContext),
+      stream: true
+    }),
+    signal: controller.signal
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`API请求失败: ${response.status}`)
+      }
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder('utf-8')
+      let fullText = ''
+      let buffer = ''
+
+      while (!aborted) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() || ''
+
+        for (const line of lines) {
+          const trimmed = line.trim()
+          if (!trimmed || !trimmed.startsWith('data:')) continue
+
+          const data = trimmed.slice(5).trim()
+          if (data === '[DONE]') {
+            if (onComplete) onComplete(fullText)
+            return
+          }
+
+          try {
+            const parsed = JSON.parse(data)
+            const delta = parsed.choices?.[0]?.delta?.content
+            if (delta) {
+              fullText += delta
+              if (onChunk) onChunk(delta, fullText)
+            }
+          } catch (e) {
+            // skip invalid JSON
+          }
+        }
+      }
+
+      if (!aborted && onComplete) onComplete(fullText)
+    })
+    .catch((err) => {
+      if (err.name === 'AbortError') return
+      console.error('智谱AI请求失败:', err)
+      if (onError) onError(err)
+    })
+
+  return {
+    abort() {
+      aborted = true
+      controller.abort()
+    }
+  }
+}
+
+function streamChatNative(messages, onChunk, onComplete, onError, preferenceContext) {
   const requestTask = uni.request({
     url: ZHIPU_API_URL,
     method: 'POST',
@@ -90,6 +172,13 @@ export function streamChat(messages, onChunk, onComplete, onError, preferenceCon
   })
 
   return requestTask
+}
+
+export function streamChat(messages, onChunk, onComplete, onError, preferenceContext) {
+  if (isH5()) {
+    return streamChatH5(messages, onChunk, onComplete, onError, preferenceContext)
+  }
+  return streamChatNative(messages, onChunk, onComplete, onError, preferenceContext)
 }
 
 function uint8ArrToUtf8(uint8Arr) {
