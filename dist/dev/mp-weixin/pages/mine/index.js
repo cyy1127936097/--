@@ -2,6 +2,10 @@
 const common_vendor = require("../../common/vendor.js");
 const store_user = require("../../store/user.js");
 const utils_safeArea = require("../../utils/safeArea.js");
+if (!Math) {
+  CustomTabBar();
+}
+const CustomTabBar = () => "../../components/CustomTabBar/CustomTabBar.js";
 const _sfc_main = {
   __name: "index",
   setup(__props) {
@@ -58,11 +62,13 @@ const _sfc_main = {
         m: common_vendor.o(($event) => goPage()),
         n: common_vendor.o(($event) => goPage()),
         o: common_vendor.o(($event) => goPage()),
-        p: common_vendor.o(handleLogout)
+        p: common_vendor.o(handleLogout),
+        q: common_vendor.p({
+          selected: 4
+        })
       };
     };
   }
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-9023ef44"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/mine/index.js.map

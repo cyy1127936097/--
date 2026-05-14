@@ -12,4 +12,3 @@ function loginByWechat() {
 exports.getTripList = getTripList;
 exports.loginByPhone = loginByPhone;
 exports.loginByWechat = loginByWechat;
-//# sourceMappingURL=../../.sourcemap/mp-weixin/api/user.js.map

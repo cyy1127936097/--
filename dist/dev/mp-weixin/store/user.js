@@ -45,4 +45,3 @@ const useUserStore = common_vendor.defineStore("user", () => {
   };
 });
 exports.useUserStore = useUserStore;
-//# sourceMappingURL=../../.sourcemap/mp-weixin/store/user.js.map

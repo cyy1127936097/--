@@ -19,7 +19,7 @@ const _sfc_main = {
       try {
         trips.value = await api_user.getTripList();
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/trip/index.vue:70", "加载行程失败", e);
+        console.error("加载行程失败", e);
       }
     }
     function createTrip() {
@@ -61,4 +61,3 @@ const _sfc_main = {
 };
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-684f8290"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/trip/index.js.map

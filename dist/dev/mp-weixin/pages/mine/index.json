@@ -1,5 +1,7 @@
 {
   "navigationStyle": "custom",
   "navigationBarTitleText": "",
-  "usingComponents": {}
+  "usingComponents": {
+    "custom-tab-bar": "../../components/CustomTabBar/CustomTabBar"
+  }
 }

@@ -17,14 +17,14 @@ const _sfc_main = {
   __name: "App",
   setup(__props) {
     common_vendor.onLaunch(() => {
-      common_vendor.index.__f__("log", "at App.vue:5", "App Launch");
+      console.log("App Launch");
       initApp();
     });
     common_vendor.onShow(() => {
-      common_vendor.index.__f__("log", "at App.vue:10", "App Show");
+      console.log("App Show");
     });
     common_vendor.onHide(() => {
-      common_vendor.index.__f__("log", "at App.vue:14", "App Hide");
+      console.log("App Hide");
     });
     function initApp() {
       const sysInfo = common_vendor.index.getSystemInfoSync();
@@ -50,4 +50,3 @@ function createApp() {
 }
 createApp().app.mount("#app");
 exports.createApp = createApp;
-//# sourceMappingURL=../.sourcemap/mp-weixin/app.js.map
