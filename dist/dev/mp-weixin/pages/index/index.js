@@ -31,6 +31,9 @@ const _sfc_main = {
     const popupTop = common_vendor.ref(150);
     const popupLeft = common_vendor.ref(50);
     const lastCity = common_vendor.ref("");
+    const toolbarTop = common_vendor.computed(() => {
+      return statusBarHeight + 20;
+    });
     const floatBallTop = common_vendor.computed(() => sysInfo.windowHeight - 200);
     const markers = common_vendor.computed(() => {
       return poiList.value.map((poi) => ({
@@ -83,7 +86,7 @@ const _sfc_main = {
         const res = await api_poi.getPoiList();
         poiList.value = res.list;
       } catch (e) {
-        common_vendor.index.__f__("error", "at pages/index/index.vue:148", "加载景点列表失败", e);
+        common_vendor.index.__f__("error", "at pages/index/index.vue:153", "加载景点列表失败", e);
       }
     }
     function onMarkerTap(e) {
@@ -181,7 +184,7 @@ const _sfc_main = {
         h: common_vendor.o(switchCity),
         i: common_vendor.o(locateMe),
         j: common_vendor.o(showFilter),
-        k: common_vendor.unref(statusBarHeight) + "px",
+        k: toolbarTop.value + "px",
         l: common_vendor.o(($event) => popupVisible.value = false),
         m: common_vendor.o(goPoiDetail),
         n: common_vendor.p({

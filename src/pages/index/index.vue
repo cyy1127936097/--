@@ -14,7 +14,7 @@
       @regionchange="onRegionChange"
     />
 
-    <view class="home-page__toolbar" :style="{ paddingTop: statusBarHeight + 'px' }">
+    <view class="home-page__toolbar" :style="{ paddingTop: toolbarTop + 'px' }">
       <view class="home-page__toolbar-content">
         <view class="home-page__city" @click="switchCity">
           <text class="home-page__city-icon">📍</text>
@@ -87,6 +87,11 @@ const popupData = ref({})
 const popupTop = ref(150)
 const popupLeft = ref(50)
 const lastCity = ref('')
+
+const toolbarTop = computed(() => {
+  // 状态栏高度 + 额外间距（避免与小程序右上角按钮重合）
+  return statusBarHeight + 20
+})
 
 const floatBallTop = computed(() => sysInfo.windowHeight - 200)
 

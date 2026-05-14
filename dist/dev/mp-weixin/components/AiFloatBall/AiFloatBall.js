@@ -13,6 +13,7 @@ const _sfc_main = {
     const posX = common_vendor.ref(0);
     const posY = common_vendor.ref(0);
     const isDragging = common_vendor.ref(false);
+    const isAnimating = common_vendor.ref(false);
     const showPulse = common_vendor.ref(true);
     let startX = 0;
     let startY = 0;
@@ -31,6 +32,7 @@ const _sfc_main = {
       startLeft = posX.value;
       startTop = posY.value;
       isDragging.value = true;
+      isAnimating.value = false;
       hasMoved = false;
     }
     function onTouchMove(e) {
@@ -40,6 +42,7 @@ const _sfc_main = {
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
         hasMoved = true;
       }
+      if (!hasMoved) return;
       const sysInfo = common_vendor.index.getSystemInfoSync();
       let newLeft = startLeft + dx;
       let newTop = startTop + dy;
@@ -50,9 +53,14 @@ const _sfc_main = {
     }
     function onTouchEnd() {
       isDragging.value = false;
+      if (!hasMoved) return;
+      isAnimating.value = true;
       const sysInfo = common_vendor.index.getSystemInfoSync();
       const centerX = sysInfo.windowWidth / 2;
       posX.value = posX.value < centerX ? 14 : sysInfo.windowWidth - 70;
+      setTimeout(() => {
+        isAnimating.value = false;
+      }, 300);
     }
     function handleClick() {
       if (!hasMoved) {
@@ -65,12 +73,14 @@ const _sfc_main = {
         a: isDragging.value ? 1 : "",
         b: showPulse.value
       }, showPulse.value ? {} : {}, {
-        c: posX.value + "px",
-        d: posY.value + "px",
-        e: common_vendor.o(onTouchStart),
-        f: common_vendor.o(onTouchMove),
-        g: common_vendor.o(onTouchEnd),
-        h: common_vendor.o(handleClick)
+        c: isDragging.value ? 1 : "",
+        d: isAnimating.value ? 1 : "",
+        e: posX.value + "px",
+        f: posY.value + "px",
+        g: common_vendor.o(onTouchStart),
+        h: common_vendor.o(onTouchMove),
+        i: common_vendor.o(onTouchEnd),
+        j: common_vendor.o(handleClick)
       });
     };
   }

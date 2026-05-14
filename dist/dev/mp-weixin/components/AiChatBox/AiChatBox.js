@@ -18,6 +18,12 @@ const _sfc_main = {
     const isAnimating = common_vendor.ref(false);
     const inputText = common_vendor.ref("");
     const msgScrollTop = common_vendor.ref(0);
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+    let hasMoved = false;
+    let isPointerDown = false;
     let sysInfoCache = null;
     function getSysInfo() {
       if (!sysInfoCache) {
@@ -26,11 +32,8 @@ const _sfc_main = {
       return sysInfoCache;
     }
     function getViewportHeight() {
-      if (typeof window !== "undefined" && window.innerHeight) {
-        return window.innerHeight;
-      }
       const sys = getSysInfo();
-      return sys.screenHeight;
+      return sys.windowHeight || sys.screenHeight;
     }
     const boxStyle = common_vendor.computed(() => ({
       left: posX.value + "px",
@@ -66,13 +69,60 @@ const _sfc_main = {
       scrollMsgToBottom();
     }
     function onPointerDown(e) {
+      isPointerDown = true;
+      hasMoved = false;
       const point = e.touches ? e.touches[0] : e;
-      point.clientX;
-      point.clientY;
-      posX.value;
-      posY.value;
+      startX = point.clientX;
+      startY = point.clientY;
+      startLeft = posX.value;
+      startTop = posY.value;
       isDragging.value = true;
       isAnimating.value = false;
+    }
+    function onPointerMove(e) {
+      if (!isPointerDown) return;
+      const point = e.touches ? e.touches[0] : e;
+      const dx = point.clientX - startX;
+      const dy = point.clientY - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        hasMoved = true;
+      }
+      if (!hasMoved) return;
+      const sysInfo = getSysInfo();
+      const viewportHeight = getViewportHeight();
+      let newLeft = startLeft + dx;
+      let newTop = startTop + dy;
+      newLeft = Math.max(0, Math.min(newLeft, sysInfo.windowWidth - boxWidth));
+      newTop = Math.max(40, Math.min(newTop, viewportHeight - tabBarHeight - 60));
+      posX.value = newLeft;
+      posY.value = newTop;
+    }
+    function onPointerUp() {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+      isDragging.value = false;
+      if (!hasMoved) return;
+      isAnimating.value = true;
+      const sysInfo = getSysInfo();
+      const centerX = sysInfo.windowWidth / 2;
+      if (posX.value + boxWidth / 2 < centerX) {
+        posX.value = 12;
+      } else {
+        posX.value = sysInfo.windowWidth - boxWidth - 12;
+      }
+      setTimeout(() => {
+        isAnimating.value = false;
+      }, 300);
+    }
+    let closeBtnTouched = false;
+    function onCloseTouchStart() {
+      closeBtnTouched = true;
+    }
+    function onCloseTouchEnd() {
+      if (closeBtnTouched) {
+        closeBtnTouched = false;
+        toggleExpand();
+      }
     }
     function toggleExpand() {
       emit("toggle");
@@ -80,12 +130,16 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: common_vendor.t(common_vendor.unref(chatStore).isStreaming ? "正在思考中..." : "在线"),
-        b: common_vendor.o(toggleExpand),
-        c: common_vendor.o(onPointerDown),
-        d: common_vendor.o(onPointerDown),
-        e: __props.expanded
+        b: common_vendor.o(onCloseTouchStart),
+        c: common_vendor.o(onCloseTouchEnd),
+        d: common_vendor.o(toggleExpand),
+        e: common_vendor.o(onPointerDown),
+        f: common_vendor.o(onPointerDown),
+        g: common_vendor.o(onPointerMove),
+        h: common_vendor.o(onPointerUp),
+        i: __props.expanded
       }, __props.expanded ? {
-        f: common_vendor.f(common_vendor.unref(chatStore).messages, (msg, k0, i0) => {
+        j: common_vendor.f(common_vendor.unref(chatStore).messages, (msg, k0, i0) => {
           return common_vendor.e({
             a: common_vendor.t(msg.content),
             b: msg.role === "user" ? 1 : "",
@@ -99,17 +153,17 @@ const _sfc_main = {
             h: msg.role === "user" ? 1 : ""
           });
         }),
-        g: msgScrollTop.value,
-        h: common_vendor.o(handleSend),
-        i: inputText.value,
-        j: common_vendor.o(($event) => inputText.value = $event.detail.value),
-        k: inputText.value.trim() && !common_vendor.unref(chatStore).isStreaming ? 1 : "",
-        l: common_vendor.o(handleSend)
+        k: msgScrollTop.value,
+        l: common_vendor.o(handleSend),
+        m: inputText.value,
+        n: common_vendor.o(($event) => inputText.value = $event.detail.value),
+        o: inputText.value.trim() && !common_vendor.unref(chatStore).isStreaming ? 1 : "",
+        p: common_vendor.o(handleSend)
       } : {}, {
-        m: __props.expanded ? 1 : "",
-        n: isDragging.value ? 1 : "",
-        o: isAnimating.value ? 1 : "",
-        p: common_vendor.s(boxStyle.value)
+        q: __props.expanded ? 1 : "",
+        r: isDragging.value ? 1 : "",
+        s: isAnimating.value ? 1 : "",
+        t: common_vendor.s(boxStyle.value)
       });
     };
   }

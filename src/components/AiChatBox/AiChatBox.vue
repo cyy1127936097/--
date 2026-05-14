@@ -11,7 +11,9 @@
     <view
       class="ai-chat-box__header"
       @mousedown.prevent="onPointerDown"
-      @touchstart.prevent="onPointerDown"
+      @touchstart="onPointerDown"
+      @touchmove.prevent="onPointerMove"
+      @touchend="onPointerUp"
     >
       <view class="ai-chat-box__header-left">
         <view class="ai-chat-box__avatar">
@@ -28,7 +30,12 @@
           <text class="ai-chat-box__drag-dot"></text>
           <text class="ai-chat-box__drag-dot"></text>
         </view>
-        <view class="ai-chat-box__close-btn" @click.stop="toggleExpand">
+        <view
+          class="ai-chat-box__close-btn"
+          @touchstart.stop="onCloseTouchStart"
+          @touchend.stop="onCloseTouchEnd"
+          @click.stop="toggleExpand"
+        >
           <text class="ai-chat-box__close-icon">✕</text>
         </view>
       </view>
@@ -129,11 +136,8 @@ function getSysInfo() {
 }
 
 function getViewportHeight() {
-  if (typeof window !== 'undefined' && window.innerHeight) {
-    return window.innerHeight
-  }
   const sys = getSysInfo()
-  return sys.screenHeight
+  return sys.windowHeight || sys.screenHeight
 }
 
 const boxStyle = computed(() => ({
@@ -204,6 +208,7 @@ function onPointerMove(e) {
   if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
     hasMoved = true
   }
+  if (!hasMoved) return
   const sysInfo = getSysInfo()
   const viewportHeight = getViewportHeight()
   let newLeft = startLeft + dx
@@ -228,6 +233,19 @@ function onPointerUp() {
     posX.value = sysInfo.windowWidth - boxWidth - 12
   }
   setTimeout(() => { isAnimating.value = false }, 300)
+}
+
+let closeBtnTouched = false
+
+function onCloseTouchStart() {
+  closeBtnTouched = true
+}
+
+function onCloseTouchEnd() {
+  if (closeBtnTouched) {
+    closeBtnTouched = false
+    toggleExpand()
+  }
 }
 
 function toggleExpand() {

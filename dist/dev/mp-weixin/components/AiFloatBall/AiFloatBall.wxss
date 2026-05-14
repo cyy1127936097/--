@@ -4,6 +4,12 @@
   width: 56px;
   height: 56px;
 }
+.ai-float-ball--animating.data-v-1c9c5466 {
+  transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.ai-float-ball--dragging .ai-float-ball__inner.data-v-1c9c5466 {
+  box-shadow: 0 8px 24px rgba(78, 205, 196, 0.5);
+}
 .ai-float-ball__inner.data-v-1c9c5466 {
   width: 56px;
   height: 56px;
@@ -13,7 +19,7 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 16px rgba(78, 205, 196, 0.4);
-  transition: transform 0.2s, opacity 0.2s;
+  transition: transform 0.2s, opacity 0.2s, box-shadow 0.15s ease;
 }
 .ai-float-ball__inner--dragging.data-v-1c9c5466 {
   transform: scale(0.9);
