@@ -1,0 +1,113 @@
+.comment-page.data-v-975542cb {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+}
+.comment-page__header.data-v-975542cb {
+  background: #FFFFFF;
+  border-bottom: 1px solid #F1F5F9;
+}
+.comment-page__header-content.data-v-975542cb {
+  height: 44px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+.comment-page__back.data-v-975542cb {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.comment-page__back-icon.data-v-975542cb {
+  font-size: 28px;
+  color: #1F2937;
+}
+.comment-page__title.data-v-975542cb {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1F2937;
+}
+.comment-page__placeholder.data-v-975542cb {
+  width: 36px;
+}
+.comment-page__tabs.data-v-975542cb {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+.comment-page__tab.data-v-975542cb {
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: #F3F4F6;
+}
+.comment-page__tab--active.data-v-975542cb {
+  background: #E8F8F7;
+}
+.comment-page__tab-text.data-v-975542cb {
+  font-size: 13px;
+  color: #6B7A8D;
+}
+.comment-page__tab-text--active.data-v-975542cb {
+  color: #4ECDC4;
+  font-weight: 700;
+}
+.comment-page__content.data-v-975542cb {
+  flex: 1;
+  padding: 0 16px;
+}
+.comment-page__list.data-v-975542cb {
+  display: flex;
+  flex-direction: column;
+}
+.comment-page__loading.data-v-975542cb {
+  padding: 20px 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.comment-page__loading-text.data-v-975542cb {
+  font-size: 12px;
+  color: #9CA3AF;
+}
+.comment-page__input-bar.data-v-975542cb {
+  background: #FFFFFF;
+  border-top: 1px solid #F1F5F9;
+  padding: 12px 16px;
+}
+.comment-page__input-wrap.data-v-975542cb {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.comment-page__input.data-v-975542cb {
+  flex: 1;
+  height: 40px;
+  background: #F3F4F6;
+  border-radius: 20px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: #1F2937;
+}
+.comment-page__input-placeholder.data-v-975542cb {
+  color: #9CA3AF;
+}
+.comment-page__send-btn.data-v-975542cb {
+  background: #4ECDC4;
+  padding: 8px 20px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.comment-page__send-text.data-v-975542cb {
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFFFFF;
+}

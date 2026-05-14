@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "",
+  "usingComponents": {
+    "community-card": "../../components/CommunityCard/CommunityCard"
+  }
+}

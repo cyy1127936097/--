@@ -1,0 +1,64 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/discover/index",
+    "pages/trip/index",
+    "pages/rank/index",
+    "pages/mine/index",
+    "pages/chat/index",
+    "pages/poi-detail/index",
+    "pages/comment/index",
+    "pages/login/index",
+    "pages/city/index"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "智旅AI",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F3F4F6"
+  },
+  "tabBar": {
+    "color": "#6B7A8D",
+    "selectedColor": "#4ECDC4",
+    "borderStyle": "black",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/discover/index",
+        "text": "发现",
+        "iconPath": "static/tabbar/discover.png",
+        "selectedIconPath": "static/tabbar/discover-active.png"
+      },
+      {
+        "pagePath": "pages/trip/index",
+        "text": "行程",
+        "iconPath": "static/tabbar/trip.png",
+        "selectedIconPath": "static/tabbar/trip-active.png"
+      },
+      {
+        "pagePath": "pages/rank/index",
+        "text": "排行",
+        "iconPath": "static/tabbar/rank.png",
+        "selectedIconPath": "static/tabbar/rank-active.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/mine.png",
+        "selectedIconPath": "static/tabbar/mine-active.png"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于小程序位置接口的效果展示"
+    }
+  },
+  "usingComponents": {}
+}
