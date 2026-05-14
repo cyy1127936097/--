@@ -134,8 +134,10 @@ const _sfc_main = {
         }
         appStore.setLocationReady(true);
       }).catch(() => {
+        if (!appStore.currentLocation.latitude) {
+          fallbackLocation();
+        }
         appStore.setLocationReady(true);
-        fallbackLocation();
       });
     }
     function locateMe() {
@@ -152,6 +154,7 @@ const _sfc_main = {
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({ title: "定位成功", icon: "success" });
       }).catch(() => {
+        appStore.setLocationReady(true);
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({ title: "定位失败，请检查权限", icon: "none" });
       });

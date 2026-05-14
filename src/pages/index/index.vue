@@ -203,8 +203,10 @@ function fetchLocation() {
       appStore.setLocationReady(true)
     })
     .catch(() => {
+      if (!appStore.currentLocation.latitude) {
+        fallbackLocation()
+      }
       appStore.setLocationReady(true)
-      fallbackLocation()
     })
 }
 
@@ -225,6 +227,7 @@ function locateMe() {
       uni.showToast({ title: '定位成功', icon: 'success' })
     })
     .catch(() => {
+      appStore.setLocationReady(true)
       uni.hideLoading()
       uni.showToast({ title: '定位失败，请检查权限', icon: 'none' })
     })
