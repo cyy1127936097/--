@@ -47,6 +47,7 @@
         </view>
       </view>
     </scroll-view>
+    <CustomTabBar />
   </view>
 </template>
 
@@ -54,6 +55,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { getHotPoi } from '@/api/poi'
 import { getSystemInfo } from '@/utils/safeArea'
+import CustomTabBar from '@/components/CustomTabBar/CustomTabBar.vue'
 
 const sysInfo = getSystemInfo()
 const statusBarHeight = sysInfo.statusBarHeight

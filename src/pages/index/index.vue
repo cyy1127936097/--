@@ -1,57 +1,60 @@
 <template>
   <view class="home-page">
-    <map
-      id="homeMap"
-      class="home-page__map"
-      :latitude="location.latitude"
-      :longitude="location.longitude"
-      :scale="13"
-      :markers="markers"
-      :polyline="polylines"
-      :show-location="true"
-      :enable-traffic="true"
-      @markertap="onMarkerTap"
-      @regionchange="onRegionChange"
-    />
+    <view class="home-page__body">
+      <map
+        id="homeMap"
+        class="home-page__map"
+        :latitude="location.latitude"
+        :longitude="location.longitude"
+        :scale="13"
+        :markers="markers"
+        :polyline="polylines"
+        :show-location="true"
+        :enable-traffic="true"
+        @markertap="onMarkerTap"
+        @regionchange="onRegionChange"
+      />
 
-    <view class="home-page__toolbar" :style="{ paddingTop: statusBarHeight + 'px' }">
-      <view class="home-page__toolbar-content">
-        <view class="home-page__city" @click="switchCity">
-          <text class="home-page__city-icon">📍</text>
-          <text class="home-page__city-name">{{ currentCity }}</text>
-        </view>
-        <view class="home-page__toolbar-btns">
-          <view class="home-page__tool-btn" @click="locateMe">
-            <text class="home-page__tool-icon">⊙</text>
+      <view class="home-page__toolbar" :style="{ paddingTop: statusBarHeight + 'px' }">
+        <view class="home-page__toolbar-content">
+          <view class="home-page__city" @click="switchCity">
+            <text class="home-page__city-icon">📍</text>
+            <text class="home-page__city-name">{{ currentCity }}</text>
           </view>
-          <view class="home-page__tool-btn" @click="showFilter">
-            <text class="home-page__tool-icon">⇶</text>
+          <view class="home-page__toolbar-btns">
+            <view class="home-page__tool-btn" @click="locateMe">
+              <text class="home-page__tool-icon">⊙</text>
+            </view>
+            <view class="home-page__tool-btn" @click="showFilter">
+              <text class="home-page__tool-icon">⇶</text>
+            </view>
           </view>
         </view>
       </view>
+
+      <PoiPopup
+        :visible="popupVisible"
+        :data="popupData"
+        :top="popupTop"
+        :left="popupLeft"
+        @close="popupVisible = false"
+        @detail="goPoiDetail"
+      />
+
+      <AiChatBox
+        v-if="aiBoxExpanded"
+        :expanded="true"
+        @toggle="toggleAiBox"
+        @goChat="goToChat"
+      />
+
+      <AiFloatBall
+        v-if="!aiBoxExpanded"
+        :initial-top="floatBallTop"
+        @click="toggleAiBox"
+      />
     </view>
-
-    <PoiPopup
-      :visible="popupVisible"
-      :data="popupData"
-      :top="popupTop"
-      :left="popupLeft"
-      @close="popupVisible = false"
-      @detail="goPoiDetail"
-    />
-
-    <AiChatBox
-      v-if="aiBoxExpanded"
-      :expanded="true"
-      @toggle="toggleAiBox"
-      @goChat="goToChat"
-    />
-
-    <AiFloatBall
-      v-if="!aiBoxExpanded"
-      :initial-top="floatBallTop"
-      @click="toggleAiBox"
-    />
+    <CustomTabBar />
   </view>
 </template>
 
@@ -65,6 +68,7 @@ import { getLocation, getCityName } from '@/utils/location'
 import PoiPopup from '@/components/PoiPopup/PoiPopup.vue'
 import AiChatBox from '@/components/AiChatBox/AiChatBox.vue'
 import AiFloatBall from '@/components/AiFloatBall/AiFloatBall.vue'
+import CustomTabBar from '@/components/CustomTabBar/CustomTabBar.vue'
 
 const appStore = useAppStore()
 const sysInfo = getSystemInfo()
@@ -252,8 +256,16 @@ function showFilter() {
 .home-page {
   width: 100vw;
   height: 100vh;
-  position: relative;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+
+  &__body {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
 
   &__map {
     width: 100%;

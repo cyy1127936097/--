@@ -1,4 +1,12 @@
-const BASE_URL = ''
+// #ifdef H5
+const BASE_URL = '/api'
+// #endif
+// #ifdef MP-WEIXIN
+const BASE_URL = 'http://localhost:8080'
+// #endif
+// #ifdef APP-PLUS
+const BASE_URL = 'http://localhost:8080'
+// #endif
 
 const request = (options) => {
   return new Promise((resolve, reject) => {

@@ -1,5 +1,5 @@
-import { getCommunityList, tagList } from '@/mock/community'
+import { get } from '@/utils/request'
 
 export function getCommunityData(tag = '') {
-  return Promise.resolve({ list: getCommunityList(tag), tags: tagList })
+  return get('/community/list', { tag })
 }

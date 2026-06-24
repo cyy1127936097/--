@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getToken, setToken, removeToken, getUserInfo, setUserInfo, removeUserInfo } from '@/utils/auth'
-import { mockUser } from '@/mock/user'
+import { getUserInfo as apiGetUserInfo, loginByPhone, loginByWechat, updateUserInfo as apiUpdateUserInfo } from '@/api/user'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(getToken() || '')
@@ -9,11 +9,34 @@ export const useUserStore = defineStore('user', () => {
 
   const isLoggedIn = computed(() => !!token.value)
 
-  function login(loginData) {
-    token.value = 'mock_token_' + Date.now()
-    userInfo.value = { ...mockUser, ...loginData }
-    setToken(token.value)
-    setUserInfo(userInfo.value)
+  async function fetchUserInfo() {
+    try {
+      const user = await apiGetUserInfo()
+      if (user) {
+        userInfo.value = user
+        setUserInfo(user)
+      }
+    } catch (e) {
+      console.error('获取用户信息失败:', e)
+    }
+  }
+
+  async function loginByPhoneAction(data) {
+    const res = await loginByPhone(data)
+    token.value = res.token
+    userInfo.value = res.userInfo
+    setToken(res.token)
+    setUserInfo(res.userInfo)
+    return res
+  }
+
+  async function loginByWechatAction() {
+    const res = await loginByWechat()
+    token.value = res.token
+    userInfo.value = res.userInfo
+    setToken(res.token)
+    setUserInfo(res.userInfo)
+    return res
   }
 
   function logout() {
@@ -23,7 +46,15 @@ export const useUserStore = defineStore('user', () => {
     removeUserInfo()
   }
 
-  function updateUserInfo(data) {
+  async function updateProfile(data) {
+    const updated = await apiUpdateUserInfo(data)
+    if (updated) {
+      userInfo.value = { ...userInfo.value, ...updated }
+      setUserInfo(userInfo.value)
+    }
+  }
+
+  function updateLocalInfo(data) {
     userInfo.value = { ...userInfo.value, ...data }
     setUserInfo(userInfo.value)
   }
@@ -38,16 +69,19 @@ export const useUserStore = defineStore('user', () => {
       favorites.push(poiId)
     }
     userInfo.value.favoriteCount = favorites.length
-    updateUserInfo({ favorites })
+    setUserInfo(userInfo.value)
   }
 
   return {
     token,
     userInfo,
     isLoggedIn,
-    login,
+    fetchUserInfo,
+    loginByPhoneAction,
+    loginByWechatAction,
     logout,
-    updateUserInfo,
+    updateProfile,
+    updateLocalInfo,
     toggleFavorite
   }
 })

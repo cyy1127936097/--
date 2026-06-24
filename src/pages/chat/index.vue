@@ -102,6 +102,10 @@ watch(() => {
   scrollToBottom()
 })
 
+onMounted(() => {
+  chatStore.loadHistory()
+})
+
 function scrollToBottom() {
   nextTick(() => {
     scrollTop.value = scrollTop.value + 999

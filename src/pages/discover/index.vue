@@ -55,6 +55,7 @@
         <text class="discover-page__loading-text">{{ loadingText }}</text>
       </view>
     </scroll-view>
+    <CustomTabBar />
   </view>
 </template>
 
@@ -63,6 +64,7 @@ import { ref, computed, onMounted } from 'vue'
 import { getCommunityData } from '@/api/community'
 import { getSystemInfo } from '@/utils/safeArea'
 import CommunityCard from '@/components/CommunityCard/CommunityCard.vue'
+import CustomTabBar from '@/components/CustomTabBar/CustomTabBar.vue'
 
 const sysInfo = getSystemInfo()
 const statusBarHeight = sysInfo.statusBarHeight

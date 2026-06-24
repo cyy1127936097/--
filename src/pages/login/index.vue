@@ -79,7 +79,6 @@
 <script setup>
 import { ref } from 'vue'
 import { useUserStore } from '@/store/user'
-import { loginByPhone as apiLoginByPhone, loginByWechat as apiLoginByWechat } from '@/api/user'
 import { getSystemInfo } from '@/utils/safeArea'
 
 const sysInfo = getSystemInfo()
@@ -122,8 +121,7 @@ async function loginByPhone() {
     return
   }
   try {
-    const res = await apiLoginByPhone({ phone: phone.value, code: code.value })
-    userStore.login(res.userInfo)
+    await userStore.loginByPhoneAction({ phone: phone.value, code: code.value })
     uni.showToast({ title: '登录成功', icon: 'success' })
     setTimeout(() => {
       uni.switchTab({ url: '/pages/index/index' })
@@ -139,8 +137,7 @@ async function loginByWechat() {
     return
   }
   try {
-    const res = await apiLoginByWechat()
-    userStore.login(res.userInfo)
+    await userStore.loginByWechatAction()
     uni.showToast({ title: '登录成功', icon: 'success' })
     setTimeout(() => {
       uni.switchTab({ url: '/pages/index/index' })

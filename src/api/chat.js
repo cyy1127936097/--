@@ -1,28 +1,13 @@
-import { chatHistory, simulateStreamReply } from '@/mock/chat'
+import { get, post, del } from '@/utils/request'
 
 export function getChatHistory() {
-  return Promise.resolve(chatHistory)
+  return get('/chat/history')
 }
 
-export function sendMessage(content) {
-  return new Promise((resolve) => {
-    const userMsg = {
-      id: Date.now(),
-      role: 'user',
-      content,
-      timestamp: Date.now()
-    }
-    const assistantMsg = {
-      id: Date.now() + 1,
-      role: 'assistant',
-      content: '',
-      timestamp: Date.now(),
-      isStreaming: true
-    }
-    resolve({ userMsg, assistantMsg })
-  })
+export function sendMessage(content, messages = []) {
+  return post('/chat/send', { content, messages })
 }
 
-export function streamReply(onChunk, onComplete) {
-  return simulateStreamReply(onChunk, onComplete)
+export function clearHistory() {
+  return del('/chat/history')
 }

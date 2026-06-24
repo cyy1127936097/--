@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { streamChat } from '@/api/zhipu'
+import { getChatHistory, clearHistory } from '@/api/chat'
 import { usePreferenceStore, THEME_OPTIONS, TRAVEL_STYLE_OPTIONS, COMPANION_OPTIONS, BUDGET_OPTIONS } from '@/store/preference'
 
 function buildPreferenceContext() {
@@ -112,6 +113,27 @@ export const useChatStore = defineStore('chat', () => {
       }
     ]
     isStreaming.value = false
+    clearHistory().catch(() => {})
+  }
+
+  async function loadHistory() {
+    try {
+      const history = await getChatHistory()
+      if (history && history.length > 0) {
+        const mapped = history.map(msg => ({
+          id: msg.id || Date.now() + Math.random(),
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp || Date.now(),
+          isStreaming: false
+        }))
+        if (mapped.length > 0) {
+          messages.value = mapped
+        }
+      }
+    } catch (e) {
+      console.error('加载对话历史失败:', e)
+    }
   }
 
   return {
@@ -122,6 +144,7 @@ export const useChatStore = defineStore('chat', () => {
     addUserMessage,
     addAssistantMessage,
     sendMessage,
-    clearMessages
+    clearMessages,
+    loadHistory
   }
 })

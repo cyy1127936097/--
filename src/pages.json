@@ -170,6 +170,7 @@
     }
   },
   "tabBar": {
+    "custom": true,
     "color": "#6B7A8D",
     "selectedColor": "#4ECDC4",
     "borderStyle": "black",
@@ -177,33 +178,23 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "static/tabbar/home.png",
-        "selectedIconPath": "static/tabbar/home-active.png"
+        "text": "首页"
       },
       {
         "pagePath": "pages/discover/index",
-        "text": "发现",
-        "iconPath": "static/tabbar/discover.png",
-        "selectedIconPath": "static/tabbar/discover-active.png"
+        "text": "发现"
       },
       {
         "pagePath": "pages/trip/index",
-        "text": "行程",
-        "iconPath": "static/tabbar/trip.png",
-        "selectedIconPath": "static/tabbar/trip-active.png"
+        "text": "行程"
       },
       {
         "pagePath": "pages/rank/index",
-        "text": "排行",
-        "iconPath": "static/tabbar/rank.png",
-        "selectedIconPath": "static/tabbar/rank-active.png"
+        "text": "排行"
       },
       {
         "pagePath": "pages/mine/index",
-        "text": "我的",
-        "iconPath": "static/tabbar/mine.png",
-        "selectedIconPath": "static/tabbar/mine-active.png"
+        "text": "我的"
       }
     ]
   },

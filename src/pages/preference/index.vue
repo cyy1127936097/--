@@ -192,7 +192,7 @@ function handleSave() {
     return
   }
   prefStore.save()
-  userStore.updateUserInfo({ preferenceCount: prefStore.preferenceCount })
+  userStore.updateLocalInfo({ preferenceCount: prefStore.preferenceCount })
   uni.showToast({ title: '偏好已保存', icon: 'success' })
   setTimeout(() => {
     uni.navigateBack()
