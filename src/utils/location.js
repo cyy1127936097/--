@@ -99,11 +99,12 @@ function getCityNameByAMapJS(latitude, longitude) {
       geocoder.getAddress([longitude, latitude], (status, result) => {
         if (status === 'complete' && result.info === 'OK') {
           const addr = result.regeocode.addressComponent
-          const city = addr.city || addr.province
-          if (city) {
-            resolve(city.replace('市', ''))
-            return
-          }
+          resolve({
+            city: (addr.city || addr.province || '').replace('市', ''),
+            district: addr.district || '',
+            township: addr.township || ''
+          })
+          return
         }
         resolve(null)
       })
@@ -122,9 +123,11 @@ async function getCityNameByRestApi(latitude, longitude) {
       })
     })
     if (res.data && res.data.status === '1') {
-      const city = res.data.regeocode.addressComponent.city || res.data.regeocode.addressComponent.province
-      if (city) {
-        return city.replace('市', '')
+      const addr = res.data.regeocode.addressComponent
+      return {
+        city: (addr.city || addr.province || '').replace('市', ''),
+        district: addr.district || '',
+        township: addr.township || ''
       }
     }
     return null
@@ -132,6 +135,23 @@ async function getCityNameByRestApi(latitude, longitude) {
     console.error('REST API获取城市名称失败', e)
     return null
   }
+}
+
+export async function getAddressDetail(latitude, longitude, coordType = 'gcj02') {
+  let gcjLat = latitude
+  let gcjLng = longitude
+  if (coordType === 'wgs84') {
+    const converted = wgs84ToGcj02(longitude, latitude)
+    gcjLat = converted.latitude
+    gcjLng = converted.longitude
+  }
+
+  // #ifdef H5
+  const detail = await getCityNameByAMapJS(gcjLat, gcjLng)
+  if (detail) return detail
+  // #endif
+
+  return await getCityNameByRestApi(gcjLat, gcjLng)
 }
 
 export async function getCityName(latitude, longitude, coordType = 'gcj02') {
@@ -144,9 +164,11 @@ export async function getCityName(latitude, longitude, coordType = 'gcj02') {
   }
 
   // #ifdef H5
-  const city = await getCityNameByAMapJS(gcjLat, gcjLng)
-  if (city) return city
+  const h5addr = await getCityNameByAMapJS(gcjLat, gcjLng)
+  if (h5addr) return h5addr.city
   // #endif
 
-  return await getCityNameByRestApi(gcjLat, gcjLng)
+  const rstAddr = await getCityNameByRestApi(gcjLat, gcjLng)
+  if (rstAddr) return rstAddr.city
+  return null
 }

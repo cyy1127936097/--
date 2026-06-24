@@ -4,8 +4,8 @@ export function getChatHistory() {
   return get('/chat/history')
 }
 
-export function sendMessage(content, messages = []) {
-  return post('/chat/send', { content, messages })
+export function sendMessage(content, messages = [], city = '') {
+  return post('/chat/send', { content, messages, city })
 }
 
 export function clearHistory() {

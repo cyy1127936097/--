@@ -62,10 +62,18 @@
               <view v-if="msg.isStreaming && msg.content" class="ai-chat-box__cursor">
                 <text class="ai-chat-box__cursor-icon">|</text>
               </view>
-              <view v-if="msg.isStreaming && !msg.content" class="ai-chat-box__loading">
-                <view class="ai-chat-box__loading-dot"></view>
-                <view class="ai-chat-box__loading-dot"></view>
-                <view class="ai-chat-box__loading-dot"></view>
+            </view>
+          </view>
+          <!-- AI 正在思考提示 -->
+          <view v-if="isAiThinking" class="ai-chat-box__msg">
+            <view class="ai-chat-box__bubble ai-chat-box__bubble--ai ai-chat-box__bubble--thinking">
+              <view class="ai-chat-box__thinking">
+                <view class="ai-chat-box__thinking-dots">
+                  <view class="ai-chat-box__thinking-dot"></view>
+                  <view class="ai-chat-box__thinking-dot"></view>
+                  <view class="ai-chat-box__thinking-dot"></view>
+                </view>
+                <text class="ai-chat-box__thinking-text">正在思考中</text>
               </view>
             </view>
           </view>
@@ -141,14 +149,25 @@ const boxStyle = computed(() => ({
   top: posY.value + 'px'
 }))
 
+// AI 正在思考：streaming 中但最后一条消息还没有内容
+const isAiThinking = computed(() => {
+  if (!chatStore.isStreaming) return false
+  const last = chatStore.messages[chatStore.messages.length - 1]
+  return !last || last.role !== 'assistant' || !last.content
+})
+
 onMounted(() => {
   const sysInfo = getSysInfo()
-  posX.value = (sysInfo.windowWidth - boxWidth) / 2
-  posY.value = getViewportHeight() - tabBarHeight - 8 - 250
-
   // #ifdef H5
+  const vw = window.innerWidth
+  posX.value = Math.max(12, (vw - boxWidth) / 2)
+  posY.value = 80
   document.addEventListener('mousemove', onPointerMove)
   document.addEventListener('mouseup', onPointerUp)
+  // #endif
+  // #ifndef H5
+  posX.value = (sysInfo.windowWidth - boxWidth) / 2
+  posY.value = getViewportHeight() - tabBarHeight - 8 - 250
   // #endif
 })
 
@@ -160,6 +179,10 @@ onBeforeUnmount(() => {
 })
 
 watch(() => chatStore.messages.length, () => {
+  scrollMsgToBottom()
+})
+
+watch(() => chatStore.isStreaming, () => {
   scrollMsgToBottom()
 })
 
@@ -204,14 +227,26 @@ function onPointerMove(e) {
   if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
     hasMoved = true
   }
-  const sysInfo = getSysInfo()
-  const viewportHeight = getViewportHeight()
+  // #ifdef H5
+  const vw = window.innerWidth
+  const vh = window.innerHeight
   let newLeft = startLeft + dx
   let newTop = startTop + dy
-  newLeft = Math.max(0, Math.min(newLeft, sysInfo.windowWidth - boxWidth))
-  newTop = Math.max(40, Math.min(newTop, viewportHeight - tabBarHeight - 60))
+  newLeft = Math.max(0, Math.min(newLeft, vw - boxWidth))
+  newTop = Math.max(60, Math.min(newTop, vh - 80))
   posX.value = newLeft
   posY.value = newTop
+  // #endif
+  // #ifndef H5
+  const sysInfo = getSysInfo()
+  const viewportHeight = getViewportHeight()
+  let newLeft2 = startLeft + dx
+  let newTop2 = startTop + dy
+  newLeft2 = Math.max(0, Math.min(newLeft2, sysInfo.windowWidth - boxWidth))
+  newTop2 = Math.max(40, Math.min(newTop2, viewportHeight - tabBarHeight - 60))
+  posX.value = newLeft2
+  posY.value = newTop2
+  // #endif
 }
 
 function onPointerUp() {
@@ -220,13 +255,24 @@ function onPointerUp() {
   isDragging.value = false
   if (!hasMoved) return
   isAnimating.value = true
-  const sysInfo = getSysInfo()
-  const centerX = sysInfo.windowWidth / 2
+  // #ifdef H5
+  const vw = window.innerWidth
+  const centerX = vw / 2
   if (posX.value + boxWidth / 2 < centerX) {
+    posX.value = 12
+  } else {
+    posX.value = vw - boxWidth - 12
+  }
+  // #endif
+  // #ifndef H5
+  const sysInfo = getSysInfo()
+  const centerX2 = sysInfo.windowWidth / 2
+  if (posX.value + boxWidth / 2 < centerX2) {
     posX.value = 12
   } else {
     posX.value = sysInfo.windowWidth - boxWidth - 12
   }
+  // #endif
   setTimeout(() => { isAnimating.value = false }, 300)
 }
 
@@ -369,6 +415,8 @@ function toggleExpand() {
     height: 220px;
     padding: 0 16px;
     flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   &__msg-list {
@@ -376,11 +424,13 @@ function toggleExpand() {
     flex-direction: column;
     gap: 10px;
     padding-bottom: 8px;
+    width: 100%;
   }
 
   &__msg {
     display: flex;
     flex-direction: row;
+    width: 100%;
 
     &--user {
       justify-content: flex-end;
@@ -393,6 +443,7 @@ function toggleExpand() {
     border-radius: 14px;
     word-break: break-word;
     overflow-wrap: break-word;
+    box-sizing: border-box;
 
     &--ai {
       background: #F9FAFB;
@@ -427,19 +478,29 @@ function toggleExpand() {
     animation: blink 1s step-end infinite;
   }
 
-  &__loading {
+  &__bubble--thinking {
+    padding: 12px 16px;
+  }
+
+  &__thinking {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__thinking-dots {
     display: flex;
     flex-direction: row;
     gap: 4px;
-    padding-top: 4px;
   }
 
-  &__loading-dot {
+  &__thinking-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #D1D5DB;
-    animation: dotBounce 1.4s ease-in-out infinite;
+    background: #4ECDC4;
+    animation: thinkingBounce 1.4s ease-in-out infinite;
 
     &:nth-child(2) {
       animation-delay: 0.2s;
@@ -448,6 +509,11 @@ function toggleExpand() {
     &:nth-child(3) {
       animation-delay: 0.4s;
     }
+  }
+
+  &__thinking-text {
+    font-size: 12px;
+    color: #9CA3AF;
   }
 
   &__input {
@@ -504,7 +570,7 @@ function toggleExpand() {
   50% { opacity: 0; }
 }
 
-@keyframes dotBounce {
+@keyframes thinkingBounce {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
   40% { transform: scale(1); opacity: 1; }
 }

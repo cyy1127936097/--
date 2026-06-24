@@ -36,13 +36,18 @@ let hasMoved = false
 let isPointerDown = false
 
 onMounted(() => {
+  // #ifdef H5
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  posX.value = props.initialLeft || vw - 70
+  posY.value = props.initialTop || vh - 200
+  document.addEventListener('mousemove', onMouseMove)
+  document.addEventListener('mouseup', onMouseUp)
+  // #endif
+  // #ifndef H5
   const sysInfo = uni.getSystemInfoSync()
   posX.value = props.initialLeft || sysInfo.windowWidth - 70
   posY.value = props.initialTop || sysInfo.windowHeight - 200
-
-  // #ifdef H5
-  document.addEventListener('mousemove', onMouseMove)
-  document.addEventListener('mouseup', onMouseUp)
   // #endif
 })
 
@@ -72,13 +77,25 @@ function onPointerMove(e) {
   if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
     hasMoved = true
   }
-  const sysInfo = uni.getSystemInfoSync()
+  // #ifdef H5
+  const vw = window.innerWidth
+  const vh = window.innerHeight
   let newLeft = startLeft + dx
   let newTop = startTop + dy
-  newLeft = Math.max(0, Math.min(newLeft, sysInfo.windowWidth - 56))
-  newTop = Math.max(80, Math.min(newTop, sysInfo.windowHeight - 120))
+  newLeft = Math.max(0, Math.min(newLeft, vw - 56))
+  newTop = Math.max(60, Math.min(newTop, vh - 120))
   posX.value = newLeft
   posY.value = newTop
+  // #endif
+  // #ifndef H5
+  const sysInfo = uni.getSystemInfoSync()
+  let newLeft2 = startLeft + dx
+  let newTop2 = startTop + dy
+  newLeft2 = Math.max(0, Math.min(newLeft2, sysInfo.windowWidth - 56))
+  newTop2 = Math.max(80, Math.min(newTop2, sysInfo.windowHeight - 120))
+  posX.value = newLeft2
+  posY.value = newTop2
+  // #endif
 }
 
 function onPointerUp() {
@@ -86,9 +103,16 @@ function onPointerUp() {
   isPointerDown = false
   isDragging.value = false
   if (hasMoved) {
+    // #ifdef H5
+    const vw = window.innerWidth
+    const centerX = vw / 2
+    posX.value = posX.value < centerX ? 14 : vw - 70
+    // #endif
+    // #ifndef H5
     const sysInfo = uni.getSystemInfoSync()
-    const centerX = sysInfo.windowWidth / 2
-    posX.value = posX.value < centerX ? 14 : sysInfo.windowWidth - 70
+    const centerX2 = sysInfo.windowWidth / 2
+    posX.value = posX.value < centerX2 ? 14 : sysInfo.windowWidth - 70
+    // #endif
   } else {
     showPulse.value = false
     emit('click')

@@ -1,15 +1,23 @@
-import { get, post, put } from '@/utils/request'
+import { get, post, put, del, uploadFile } from '@/utils/request'
 
 export function getUserInfo() {
   return get('/user/info')
 }
 
-export function getTripList() {
-  return get('/trip/list')
+export function getTripList(city) {
+  return get('/trip/list', city ? { city } : {})
+}
+
+export function getTripDetail(id) {
+  return get('/trip/' + id)
 }
 
 export function createTrip(data) {
   return post('/trip/create', data)
+}
+
+export function deleteTrip(id) {
+  return del('/trip/' + id)
 }
 
 export function loginByPhone(data) {
@@ -22,4 +30,8 @@ export function loginByWechat() {
 
 export function updateUserInfo(data) {
   return put('/user/info', data)
+}
+
+export function uploadAvatar(filePath) {
+  return uploadFile(filePath, 'file')
 }

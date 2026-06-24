@@ -1,1 +1,0 @@
-import{g as t}from"./request.BasyJ4kl.js";function i(i){return t("/poi/list",i)}function o(i){return t(`/poi/detail/${i}`)}function r(i=10){return t("/poi/hot",{limit:i})}export{r as a,o as b,i as g};

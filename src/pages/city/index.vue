@@ -156,7 +156,7 @@ import { ref, computed, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useAppStore } from '@/store/app'
 import { getSystemInfo } from '@/utils/safeArea'
-import { getLocation, getCityName } from '@/utils/location'
+import { getLocation, getCityName, getAddressDetail } from '@/utils/location'
 
 const appStore = useAppStore()
 const sysInfo = getSystemInfo()
@@ -361,9 +361,11 @@ async function refreshLocation() {
   }
 }
 
-function selectCity(city) {
+async function selectCity(city) {
   appStore.setCity(city.name)
   appStore.setLocation({ latitude: city.latitude, longitude: city.longitude })
+  const addr = await getAddressDetail(city.latitude, city.longitude)
+  if (addr) appStore.setAddress(addr)
   uni.navigateBack()
 }
 
@@ -394,7 +396,7 @@ function showLetterToast(letter) {
 
 <style lang="scss" scoped>
 .city-page {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   background: #F3F4F6;
   display: flex;

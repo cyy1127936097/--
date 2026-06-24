@@ -1,6 +1,6 @@
 const ZHIPU_API_KEY = '39bfaec720ac45458755bcc2be4dbab0.FgMjAva0IsSX1cMi'
 const ZHIPU_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions'
-const MODEL = 'glm-4-flash'
+const MODEL = 'glm-4-flash' 
 
 const BASE_SYSTEM_PROMPT = `你是"智旅AI"，一个专业的旅游规划助手。你的职责是：
 1. 根据用户的需求，推荐旅游目的地、景点、美食

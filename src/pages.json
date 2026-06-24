@@ -86,6 +86,20 @@
       }
     },
     {
+      "path": "pages/trip-detail/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "行程详情",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
+        "app-plus": {
+          "titleNView": false
+        }
+      }
+    },
+    {
       "path": "pages/poi-detail/index",
       "style": {
         "navigationStyle": "custom",
@@ -146,6 +160,83 @@
       "style": {
         "navigationStyle": "custom",
         "navigationBarTitleText": "偏好设置",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
+        "app-plus": {
+          "titleNView": false
+        }
+      }
+    },
+    {
+      "path": "pages/settings/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "设置"
+      }
+    },
+    {
+      "path": "pages/my-routes/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "我的路线"
+      }
+    },
+    {
+      "path": "pages/my-favorites/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "我的收藏"
+      }
+    },
+    {
+      "path": "pages/offline/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "离线缓存"
+      }
+    },
+    {
+      "path": "pages/privacy/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "隐私设置"
+      }
+    },
+    {
+      "path": "pages/feedback/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "意见反馈"
+      }
+    },
+    {
+      "path": "pages/about/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "关于我们"
+      }
+    },
+    {
+      "path": "pages/community-detail/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "帖子详情",
+        "mp-weixin": {
+          "navigationStyle": "custom",
+          "usingComponents": {}
+        },
+        "app-plus": {
+          "titleNView": false
+        }
+      }
+    },
+    {
+      "path": "pages/search/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "搜索",
         "mp-weixin": {
           "navigationStyle": "custom",
           "usingComponents": {}

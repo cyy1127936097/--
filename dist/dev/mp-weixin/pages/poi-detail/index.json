@@ -1,7 +1,0 @@
-{
-  "navigationStyle": "custom",
-  "navigationBarTitleText": "景点详情",
-  "usingComponents": {
-    "comment-item": "../../components/CommentItem/CommentItem"
-  }
-}

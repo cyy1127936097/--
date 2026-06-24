@@ -202,7 +202,7 @@ function handleSave() {
 
 <style lang="scss" scoped>
 .pref-page {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   background: #F3F4F6;
   display: flex;

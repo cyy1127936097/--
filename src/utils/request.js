@@ -64,4 +64,39 @@ export const post = (url, data) => request({ url, method: 'POST', data })
 export const put = (url, data) => request({ url, method: 'PUT', data })
 export const del = (url, data) => request({ url, method: 'DELETE', data })
 
+export function uploadFile(filePath, name = 'file') {
+  return new Promise((resolve, reject) => {
+    const token = uni.getStorageSync('token')
+    const header = {}
+    if (token) {
+      header['Authorization'] = `Bearer ${token}`
+    }
+    uni.uploadFile({
+      url: BASE_URL + '/file/upload',
+      filePath,
+      name,
+      header,
+      success: (res) => {
+        if (res.statusCode === 200) {
+          try {
+            const data = JSON.parse(res.data)
+            if (data.code === 0 || data.code === 200) {
+              resolve(data.data)
+            } else {
+              reject(new Error(data.message || '上传失败'))
+            }
+          } catch (e) {
+            reject(new Error('解析响应失败'))
+          }
+        } else {
+          reject(new Error(`上传失败: ${res.statusCode}`))
+        }
+      },
+      fail: (err) => {
+        reject(err)
+      }
+    })
+  })
+}
+
 export default request

@@ -56,19 +56,23 @@ uni-page-body {
 page {
   height: 100vh;
   height: 100dvh;
+  width: 100%;
 }
 
-@media (min-width: 750px) {
-  uni-app {
-    display: flex;
-    justify-content: center;
-    background: #E5E7EB;
-  }
-  uni-page-body {
-    max-width: 750px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    position: relative;
-  }
+uni-app {
+  width: 100%;
+  min-height: 100vh;
+  background: #F3F4F6;
+  padding-top: 56px;
+}
+
+uni-page-body, uni-page-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+uni-tabbar {
+  display: none !important;
 }
 /* #endif */
 </style>

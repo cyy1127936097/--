@@ -1,1 +1,0 @@
-<view class="star-rating data-v-fff419fc" style="{{'gap:' + c}}"><view wx:for="{{a}}" wx:for-item="i" wx:key="b" class="star-rating__item data-v-fff419fc" bindtap="{{i.c}}"><text class="star-rating__icon data-v-fff419fc" style="{{'font-size:' + b + ';' + ('color:' + i.a)}}">★</text></view></view>

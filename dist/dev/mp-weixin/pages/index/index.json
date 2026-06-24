@@ -1,9 +1,0 @@
-{
-  "navigationStyle": "custom",
-  "navigationBarTitleText": "",
-  "usingComponents": {
-    "poi-popup": "../../components/PoiPopup/PoiPopup",
-    "ai-chat-box": "../../components/AiChatBox/AiChatBox",
-    "ai-float-ball": "../../components/AiFloatBall/AiFloatBall"
-  }
-}

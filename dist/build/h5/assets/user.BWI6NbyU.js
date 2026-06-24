@@ -1,1 +1,0 @@
-import{g as n,p as r,a as t}from"./request.BasyJ4kl.js";function u(){return n("/user/info")}function s(){return n("/trip/list")}function e(n){return r("/user/login/phone",n)}function i(){return r("/user/login/wechat")}function o(n){return t("/user/info",n)}export{u as a,i as b,s as g,e as l,o as u};

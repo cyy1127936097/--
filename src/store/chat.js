@@ -1,36 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { streamChat } from '@/api/zhipu'
-import { getChatHistory, clearHistory } from '@/api/chat'
-import { usePreferenceStore, THEME_OPTIONS, TRAVEL_STYLE_OPTIONS, COMPANION_OPTIONS, BUDGET_OPTIONS } from '@/store/preference'
-
-function buildPreferenceContext() {
-  const prefStore = usePreferenceStore()
-  if (!prefStore.hasPreference) return null
-  const parts = []
-  if (prefStore.themes.length > 0) {
-    const labels = prefStore.themes.map(k => THEME_OPTIONS.find(t => t.key === k)?.label).filter(Boolean)
-    parts.push(`旅行主题偏好：${labels.join('、')}`)
-  }
-  if (prefStore.travelStyle.length > 0) {
-    const labels = prefStore.travelStyle.map(k => TRAVEL_STYLE_OPTIONS.find(t => t.key === k)?.label).filter(Boolean)
-    parts.push(`旅行方式偏好：${labels.join('、')}`)
-  }
-  if (prefStore.companion.length > 0) {
-    const labels = prefStore.companion.map(k => COMPANION_OPTIONS.find(t => t.key === k)?.label).filter(Boolean)
-    parts.push(`出行人群偏好：${labels.join('、')}`)
-  }
-  if (prefStore.budget.length > 0) {
-    const labels = prefStore.budget.map(k => {
-      const opt = BUDGET_OPTIONS.find(t => t.key === k)
-      return opt ? `${opt.label}(${opt.desc}元)` : ''
-    }).filter(Boolean)
-    parts.push(`预算偏好：${labels.join('、')}`)
-  }
-  return parts.length > 0 ? parts.join('\n') : null
-}
+import { sendMessage as apiSendMessage, getChatHistory, clearHistory } from '@/api/chat'
+import { useAppStore } from './app'
 
 export const useChatStore = defineStore('chat', () => {
+  const appStore = useAppStore()
   const messages = ref([
     {
       id: 1,
@@ -40,9 +14,6 @@ export const useChatStore = defineStore('chat', () => {
     }
   ])
   const isStreaming = ref(false)
-  let streamAbort = null
-
-  const chatMessages = computed(() => messages.value)
 
   const apiMessages = computed(() => {
     return messages.value
@@ -64,43 +35,34 @@ export const useChatStore = defineStore('chat', () => {
     return msg
   }
 
-  function addAssistantMessage() {
-    const msg = {
-      id: Date.now() + 1,
-      role: 'assistant',
-      content: '',
-      timestamp: Date.now(),
-      isStreaming: true
-    }
-    messages.value.push(msg)
-    return msg
-  }
-
   function sendMessage(content) {
     if (isStreaming.value) return
     addUserMessage(content)
-    const assistantMsg = addAssistantMessage()
     isStreaming.value = true
-    const preferenceContext = buildPreferenceContext()
 
-    streamChat(
-      apiMessages.value.slice(0, -1),
-      (chunk, fullText) => {
-        assistantMsg.content = fullText
-      },
-      (fullText) => {
-        assistantMsg.content = fullText
-        assistantMsg.isStreaming = false
+    const city = appStore.currentCity || '厦门'
+    apiSendMessage(content, apiMessages.value, city)
+      .then((res) => {
+        messages.value.push({
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: res.assistantMsg?.content || '',
+          timestamp: Date.now(),
+          isStreaming: false
+        })
         isStreaming.value = false
-      },
-      (error) => {
-        assistantMsg.content = '抱歉，AI暂时无法回复，请稍后再试 🙏'
-        assistantMsg.isStreaming = false
+      })
+      .catch((error) => {
+        messages.value.push({
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: '抱歉，AI暂时无法回复，请稍后再试 🙏',
+          timestamp: Date.now(),
+          isStreaming: false
+        })
         isStreaming.value = false
         console.error('对话异常:', error)
-      },
-      preferenceContext
-    )
+      })
   }
 
   function clearMessages() {
@@ -139,10 +101,6 @@ export const useChatStore = defineStore('chat', () => {
   return {
     messages,
     isStreaming,
-    chatMessages,
-    apiMessages,
-    addUserMessage,
-    addAssistantMessage,
     sendMessage,
     clearMessages,
     loadHistory
